@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:parking_shared/parking_shared.dart';
+import 'package:parking_admin/utils/validate.dart';
 
-class ParkingSpaceEditWidget extends StatefulWidget {
+class EditParkingSpaceWidget extends StatefulWidget {
   final ParkingSpace parkingSpace;
 
-  const ParkingSpaceEditWidget({super.key, required this.parkingSpace});
+  const EditParkingSpaceWidget({super.key, required this.parkingSpace});
   @override
-  State<StatefulWidget> createState() => _ParkingSpaceEditWidgetState();
+  State<StatefulWidget> createState() => _EditParkingSpaceWidgetState();
 }
 
-class _ParkingSpaceEditWidgetState extends State<ParkingSpaceEditWidget> {
+class _EditParkingSpaceWidgetState extends State<EditParkingSpaceWidget> {
   final _formkey = GlobalKey<FormState>();
   late TextEditingController addressController;
   late TextEditingController priceController;
@@ -21,24 +22,6 @@ class _ParkingSpaceEditWidgetState extends State<ParkingSpaceEditWidget> {
         TextEditingController(text: widget.parkingSpace.address);
     priceController = TextEditingController(
         text: widget.parkingSpace.pricePerHour.toString());
-  }
-
-  String? _validatePrice(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter a price';
-    }
-    final price = double.tryParse(value);
-    if (price == null || price <= 0) {
-      return 'Please enter a valid price';
-    }
-    return null;
-  }
-
-  String? _validateAddress(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter an address';
-    }
-    return null;
   }
 
   void _saveChanges() async {
@@ -95,7 +78,7 @@ class _ParkingSpaceEditWidgetState extends State<ParkingSpaceEditWidget> {
                   labelText: 'Address',
                   border: OutlineInputBorder(),
                 ),
-                validator: _validateAddress,
+                validator: validateAddress,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -105,7 +88,7 @@ class _ParkingSpaceEditWidgetState extends State<ParkingSpaceEditWidget> {
                   labelText: 'Price per hour',
                   border: OutlineInputBorder(),
                 ),
-                validator: _validatePrice,
+                validator: validatePrice,
               ),
               const SizedBox(height: 20),
               ElevatedButton(

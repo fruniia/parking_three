@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:parking_admin/widgets/create_parking_space_view.dart';
 import 'package:parking_admin/widgets/parking_space_widget.dart';
 import 'package:parking_shared/parking_shared.dart';
 
@@ -10,9 +11,12 @@ class AdministrationView extends StatefulWidget {
 }
 
 class _AdministrationViewState extends State<AdministrationView> {
+  late Future<List<ParkingSpace>> getParkingSpaces;
+
   @override
   void initState() {
     super.initState();
+    getParkingSpaces = ParkingSpaceRepository().getAll();
   }
 
   @override
@@ -20,7 +24,7 @@ class _AdministrationViewState extends State<AdministrationView> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Edit parkings'),
+        title: const Text('Edit parkingspaces'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -28,14 +32,16 @@ class _AdministrationViewState extends State<AdministrationView> {
           children: [
             const Text(
               'List of parkingspaces',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 26,
+              ),
             ),
             const SizedBox(
               height: 20,
             ),
             Expanded(
               child: FutureBuilder<List<ParkingSpace>>(
-                  future: ParkingSpaceRepository().getAll(),
+                  future: getParkingSpaces,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -61,6 +67,7 @@ class _AdministrationViewState extends State<AdministrationView> {
                         itemBuilder: (context, index) {
                           return ParkingSpaceWidget(
                             parkingSpace: snapshot.data![index],
+                            index: index,
                           );
                         },
                       );
@@ -68,9 +75,30 @@ class _AdministrationViewState extends State<AdministrationView> {
                     return const CircularProgressIndicator();
                   }),
             ),
+            FloatingActionButton.extended(
+              onPressed: navigateToCreateView,
+              label: const Row(
+                children: <Widget>[
+                  Text('Add new parkingspace'),
+                  Icon(Icons.add),
+                ],
+              ),
+            )
           ],
         ),
       ),
     );
+  }
+
+  void navigateToCreateView() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CreateParkingSpaceWidget()),
+    );
+    if (result == true) {
+      setState(() {
+        getParkingSpaces = ParkingSpaceRepository().getAll();
+      });
+    }
   }
 }

@@ -22,8 +22,6 @@ Follow the instructions below to install and run the application:
    ```bash
    cd parking_admin
    flutter run -d windows  # On Windows
-   flutter run -d macos    # On macOS
-   flutter run -d linux    # On Linux
    ```
 
 ## How to use the app

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:parking_admin/views/administration_view.dart';
+import 'package:parking_admin/views/parking_view.dart';
 import 'package:parking_admin/views/start_view.dart';
 
 class NavigationView extends StatefulWidget {
@@ -17,9 +18,10 @@ class _NavigationViewState extends State<NavigationView> {
     NavigationRailDestination(icon: Icon(Icons.home), label: Text('Home')),
     NavigationRailDestination(
         icon: Icon(Icons.local_parking), label: Text('Administration')),
+    NavigationRailDestination(icon: Icon(Icons.access_time), label: Text('Active parkings')),
   ];
 
-  var pages = const [StartPageView(), AdministrationView()];
+  var pages = const [StartPageView(), AdministrationView(), ParkingView()];
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +33,13 @@ class _NavigationViewState extends State<NavigationView> {
       case 1:
         page = const AdministrationView();
         break;
+      case 2:
+        page = const ParkingView();
+        break;
       default:
         throw UnimplementedError('no widget for $_selectedIndex');
     }
-    
+
     return Scaffold(
       body: Row(
         children: <Widget>[

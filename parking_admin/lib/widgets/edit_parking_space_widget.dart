@@ -42,20 +42,15 @@ class _EditParkingSpaceWidgetState extends State<EditParkingSpaceWidget> {
           content: Text(
               'Parkingspace ${widget.parkingSpace.address}, ${widget.parkingSpace.pricePerHour} updated'),
         ));
+
+        Navigator.pop(context, widget.parkingSpace);
       }
-      _navigateBack();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('Please fix the errors in the form'),
             backgroundColor: Colors.red),
       );
-    }
-  }
-
-  void _navigateBack() {
-    if (mounted) {
-      Navigator.pop(context, widget.parkingSpace);
     }
   }
 

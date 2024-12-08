@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:parking_admin/widgets/create_parking_space_widget.dart';
-import 'package:parking_admin/widgets/parking_space_widget.dart';
 import 'package:parking_shared/parking_shared.dart';
 
-class AdministrationView extends StatefulWidget {
-  const AdministrationView({super.key});
+class ParkingView extends StatefulWidget {
+  const ParkingView({super.key});
 
   @override
-  State<StatefulWidget> createState() => _AdministrationViewState();
+  State<StatefulWidget> createState() => _ParkingViewState();
 }
 
-class _AdministrationViewState extends State<AdministrationView> {
+class _ParkingViewState extends State<ParkingView> {
   // Future which gets parkingSpaces, initialized as an empty list
   late Future<List<ParkingSpace>> getParkingSpaces = Future.value([]);
+  late Future<List<Parking>> getParkings = Future.value([]);
   late List<ParkingSpace> parkingSpaces;
+  late List<Parking> parkings;
 
   @override
   void initState() {
     super.initState();
     _fetchParkingSpaces();
+    _fetchParkings();
   }
 
   @override
@@ -26,14 +27,14 @@ class _AdministrationViewState extends State<AdministrationView> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Edit parkingspaces'),
+        title: const Text('Active parkings'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             const Text(
-              'List of parkingspaces',
+              'List of active parkings',
               style: TextStyle(
                 fontSize: 26,
               ),
@@ -42,8 +43,8 @@ class _AdministrationViewState extends State<AdministrationView> {
               height: 20,
             ),
             Expanded(
-              child: FutureBuilder<List<ParkingSpace>>(
-                  future: getParkingSpaces,
+              child: FutureBuilder<List<Parking>>(
+                  future: getParkings,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -67,10 +68,13 @@ class _AdministrationViewState extends State<AdministrationView> {
                       return ListView.builder(
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
-                          return ParkingSpaceWidget(
-                            parkingSpace: snapshot.data![index],
-                            index: index,
-                            onDelete: _handleDeleteParkingSpace,
+                          var parking = snapshot.data![index];
+
+                          return ListTile(
+                            title: Text(
+                                'Parking at ${parking.parkingSpace.address.toString()}'),
+                            subtitle: Text(
+                                'Licenseplate: ${parking.vehicle.licensePlate}\nStart time: ${parking.start}'),
                           );
                         },
                       );
@@ -78,38 +82,10 @@ class _AdministrationViewState extends State<AdministrationView> {
                     return const CircularProgressIndicator();
                   }),
             ),
-            FloatingActionButton.extended(
-              onPressed: navigateToCreateView,
-              label: const Row(
-                children: <Widget>[
-                  Text('Add new parkingspace'),
-                  Icon(Icons.add),
-                ],
-              ),
-            )
           ],
         ),
       ),
     );
-  }
-
-  void navigateToCreateView() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const CreateParkingSpaceWidget()),
-    );
-    if (result == true) {
-      setState(() {
-        getParkingSpaces = ParkingSpaceRepository().getAll();
-      });
-    }
-  }
-
-  void _handleDeleteParkingSpace(ParkingSpace parkingSpace) {
-    setState(() {
-      parkingSpaces.remove(parkingSpace);
-      getParkingSpaces = Future.value(parkingSpaces);
-    });
   }
 
   void _fetchParkingSpaces() {
@@ -118,12 +94,25 @@ class _AdministrationViewState extends State<AdministrationView> {
         parkingSpaces = spaces;
         getParkingSpaces = Future.value(parkingSpaces);
       });
-      return spaces;
     }).catchError((error) {
       setState(() {
         getParkingSpaces = Future.value(<ParkingSpace>[]);
       });
-      return Future.value(<ParkingSpace>[]);
+    });
+  }
+
+  void _fetchParkings() {
+    ParkingRepository().getAll().then((items) {
+      List<Parking> activeParkings =
+          items.where((parking) => parking.stop == null).toList();
+      setState(() {
+        parkings = activeParkings;
+        getParkings = Future.value(parkings);
+      });
+    }).catchError((error) {
+      setState(() {
+        getParkings = Future.value(<Parking>[]);
+      });
     });
   }
 }

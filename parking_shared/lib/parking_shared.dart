@@ -12,3 +12,5 @@ export 'src/models/vehicle.dart';
 export 'src/models/person.dart';
 
 export 'src/enums/vehicle_type.dart';
+
+export 'src/utils/formatting_utils.dart';

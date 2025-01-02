@@ -1,7 +1,6 @@
 name: parking_shared
 description: A starting point for Dart libraries or applications.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
 
 environment:
   sdk: ^3.5.3
@@ -11,6 +10,7 @@ dependencies:
   # path: ^1.8.0
   uuid: ^4.4.2
   http: ^1.1.0
+  intl: ^0.20.1
 
 dev_dependencies:
   lints: ^4.0.0

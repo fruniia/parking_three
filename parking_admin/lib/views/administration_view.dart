@@ -81,6 +81,7 @@ class _AdministrationViewState extends State<AdministrationView> {
             FloatingActionButton.extended(
               onPressed: navigateToCreateView,
               label: const Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Text('Add new parkingspace'),
                   Icon(Icons.add),

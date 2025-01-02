@@ -74,7 +74,9 @@ class _ParkingViewState extends State<ParkingView> {
                             title: Text(
                                 'Parking at ${parking.parkingSpace.address.toString()}'),
                             subtitle: Text(
-                                'Licenseplate: ${parking.vehicle.licensePlate}\nStart time: ${parking.start}'),
+                                'Licenseplate: ${parking.vehicle.licensePlate}\n'
+                                'Start date: ${formatDate(parking.start)}\n'
+                                'Start time: ${formatTime(parking.start)}'),
                           );
                         },
                       );

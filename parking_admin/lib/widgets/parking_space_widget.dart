@@ -27,32 +27,48 @@ class _ParkingSpaceWidgetState extends State<ParkingSpaceWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: CircleAvatar(
-        child: Text('${index + 1}'),
-      ),
-      title: Text(
-        parkingSpace.address,
-        style: const TextStyle(fontSize: 16, color: Colors.black),
-      ),
-      subtitle:
-          Text('Price per hour: SEK ${parkingSpace.pricePerHour.toString()}'),
-      trailing: SizedBox(
-        width: 80,
-        child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-          IconButton(
-            icon: const Icon(Icons.edit, color: Colors.blueGrey),
-            onPressed: () async {
-              _editParkingSpace(context, parkingSpace);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.blueGrey),
-            onPressed: () async {
-              _deleteParkingSpace(context, parkingSpace);
-            },
-          ),
-        ]),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+           CircleAvatar(
+              child: Text('${index + 1}'),
+            ),
+            const SizedBox(width: 16,),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  parkingSpace.address,
+                  style: const TextStyle(fontSize: 16, color: Colors.black),
+                ),
+                Text('Price per hour: SEK ${parkingSpace.pricePerHour.toString()}'),
+              ],
+            ),const Spacer(),
+             SizedBox(
+              width: 80,
+              child: Row(mainAxisAlignment: MainAxisAlignment.end, mainAxisSize: MainAxisSize.min, children: [
+                Tooltip(
+                  message: 'Edit',
+                  child: IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.blueGrey),
+                    onPressed: () async {
+                      _editParkingSpace(context, parkingSpace);
+                    },
+                  ),
+                ),
+                Tooltip(
+                  message: 'Delete',
+                  child: IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.blueGrey),
+                    onPressed: () async {
+                      _deleteParkingSpace(context, parkingSpace);
+                    },
+                  ),
+                ),
+              ]),
+            ),
+        ],
       ),
     );
   }

@@ -26,7 +26,7 @@ class _CreateParkingSpaceWidgetState extends State<CreateParkingSpaceWidget> {
         padding: const EdgeInsets.all(8.0),
         child: Form(
           key: _formkey,
-          child: ListView(padding: const EdgeInsets.all(8.0), children: [
+          child: ListView(padding: const EdgeInsets.all(16.0), children: [
             TextFormField(
               controller: addressController,
               decoration: const InputDecoration(

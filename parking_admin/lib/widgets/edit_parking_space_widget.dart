@@ -14,6 +14,7 @@ class _EditParkingSpaceWidgetState extends State<EditParkingSpaceWidget> {
   final _formkey = GlobalKey<FormState>();
   late TextEditingController addressController;
   late TextEditingController priceController;
+  bool _hasChanges = false;
 
   @override
   void initState() {
@@ -24,8 +25,25 @@ class _EditParkingSpaceWidgetState extends State<EditParkingSpaceWidget> {
         text: widget.parkingSpace.pricePerHour.toString());
   }
 
+  void _checkForChanges() {
+    setState(() {
+      _hasChanges = addressController.text != widget.parkingSpace.address ||
+          priceController.text != widget.parkingSpace.pricePerHour.toString();
+    });
+  }
+
   void _saveChanges() async {
     if (_formkey.currentState?.validate() ?? false) {
+      if (!_hasChanges) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No changes made'),
+            backgroundColor: Colors.lightGreen,
+          ),
+        );
+        return;
+      }
+
       setState(() {
         widget.parkingSpace.address = addressController.text;
         widget.parkingSpace.pricePerHour =
@@ -56,6 +74,9 @@ class _EditParkingSpaceWidgetState extends State<EditParkingSpaceWidget> {
 
   @override
   Widget build(BuildContext context) {
+    addressController.addListener(_checkForChanges);
+    priceController.addListener(_checkForChanges);
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit'),
@@ -86,9 +107,12 @@ class _EditParkingSpaceWidgetState extends State<EditParkingSpaceWidget> {
                 validator: validatePrice,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _saveChanges,
-                child: const Text('Save changes'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _saveChanges,
+                  child: const Text('Save changes'),
+                ),
               ),
             ],
           ),

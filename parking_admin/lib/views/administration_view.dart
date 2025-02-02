@@ -20,8 +20,8 @@ class AdministrationViewState extends State<AdministrationView> {
 
   void _loadData() async {
     try {
-      final parkingProvider = context.read<ParkingProvider>();
-      await parkingProvider.loadParkingSpaces();
+      final parkingSpaceProvider = context.read<ParkingSpaceProvider>();
+      await parkingSpaceProvider.loadParkingSpaces();
     } catch (e) {
       if (mounted) {
         showCustomSnackBar(context, 'Failed to load data: $e', type: 'error');
@@ -34,14 +34,14 @@ class AdministrationViewState extends State<AdministrationView> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Edit parkingspaces'),
+        title: const Text('Manage parking spaces'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             const Text(
-              'List of parkingspaces',
+              'List of parking spaces',
               style: TextStyle(
                 fontSize: 26,
               ),
@@ -50,20 +50,26 @@ class AdministrationViewState extends State<AdministrationView> {
               height: 20,
             ),
             Expanded(
-              child: Consumer<ParkingProvider>(
-                  builder: (context, parkingProvider, child) {
-                if (parkingProvider.parkingSpaces.isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
+              child: Consumer<ParkingSpaceProvider>(
+                  builder: (context, parkingSpaceProvider, child) {
+                if (parkingSpaceProvider.parkingSpaces.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No parking spaces available.',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  );
                 } else {
                   return ListView.builder(
-                    itemCount: parkingProvider.parkingSpaces.length,
+                    itemCount: parkingSpaceProvider.parkingSpaces.length,
                     itemBuilder: (context, index) {
                       return ParkingSpaceWidget(
-                          parkingSpace: parkingProvider.parkingSpaces[index],
+                          parkingSpace:
+                              parkingSpaceProvider.parkingSpaces[index],
                           index: index,
                           onDelete: (ParkingSpace parkingSpace) {
-                            parkingProvider.deleteParkingSpace(
-                                parkingProvider.parkingSpaces[index]);
+                            parkingSpaceProvider.deleteParkingSpace(
+                                parkingSpaceProvider.parkingSpaces[index]);
                           });
                     },
                   );
@@ -77,7 +83,7 @@ class AdministrationViewState extends State<AdministrationView> {
               label: const Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  Text('Add new parkingspace'),
+                  Text('Add new parking space'),
                   Icon(Icons.add),
                 ],
               ),
@@ -95,9 +101,16 @@ class AdministrationViewState extends State<AdministrationView> {
     );
     if (result == true) {
       if (context.mounted) {
-        final parkingProvider =
-            Provider.of<ParkingProvider>(context, listen: false);
-        await parkingProvider.loadParkingSpaces();
+        final parkingSpaceProvider =
+            Provider.of<ParkingSpaceProvider>(context, listen: false);
+        try {
+          await parkingSpaceProvider.loadParkingSpaces();
+        } catch (e) {
+          if (context.mounted) {
+            showCustomSnackBar(context, 'Failed to load parking spaces: $e',
+                type: 'error');
+          }
+        }
       }
     }
   }

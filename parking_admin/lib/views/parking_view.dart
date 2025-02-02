@@ -22,10 +22,11 @@ class _ParkingViewState extends State<ParkingView> {
   void _loadData() async {
     try {
       final parkingProvider = context.read<ParkingProvider>();
+      final parkingSpaceProvider = context.read<ParkingSpaceProvider>();
       // Admin does not have a login
       // Hardcoded: isAdmin = true and authService = null
       parkingProvider.isAdmin = true;
-      await parkingProvider.loadParkingSpaces();
+      await parkingSpaceProvider.loadParkingSpaces();
       await parkingProvider.loadActiveParkingSessions(null);
       await parkingProvider.loadCompletedParkingSessions(null);
     } catch (e) {
@@ -45,7 +46,12 @@ class _ParkingViewState extends State<ParkingView> {
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             title: const Text('Active parking sessions'),
           ),
-          body: const Center(child: CircularProgressIndicator()),
+          body: const Center(
+            child: Text(
+              'No active parking sessions.',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+          ),
         );
       }
 

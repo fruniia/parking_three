@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:parking_admin/utils/index.dart';
 import 'package:parking_shared_logic/parking_shared_logic.dart';
 import 'package:parking_shared_ui/parking_shared_ui.dart';
+import 'package:provider/provider.dart';
 
 class EditParkingSpaceWidget extends StatefulWidget {
   final ParkingSpace parkingSpace;
@@ -46,15 +47,22 @@ class _EditParkingSpaceWidgetState extends State<EditParkingSpaceWidget> {
             double.tryParse(priceController.text) ??
                 widget.parkingSpace.pricePerHour;
       });
+      try {
+        await context
+            .read<ParkingSpaceProvider>()
+            .updateParkingSpace(widget.parkingSpace);
 
-      await ParkingSpaceRepository()
-          .update(widget.parkingSpace.id, widget.parkingSpace);
-
-      if (mounted) {
-        showCustomSnackBar(context,
-            'Parkingspace ${widget.parkingSpace.address}, ${widget.parkingSpace.pricePerHour} updated',
-            type: 'success');
-        Navigator.pop(context, widget.parkingSpace);
+        if (mounted) {
+          showCustomSnackBar(context,
+              'Parkingspace ${widget.parkingSpace.address}, ${widget.parkingSpace.pricePerHour} updated',
+              type: 'success');
+          Navigator.pop(context, widget.parkingSpace);
+        }
+      } catch (e) {
+        if (mounted) {
+          showCustomSnackBar(context, 'Failed to update parking space: $e',
+              type: 'error');
+        }
       }
     } else {
       showCustomSnackBar(context, 'Please fix the errors in the form',

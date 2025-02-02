@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:parking_admin/utils/index.dart';
-import 'package:parking_shared_logic/parking_shared_logic.dart';
 import 'package:parking_shared_ui/parking_shared_ui.dart';
+import 'package:provider/provider.dart';
 
 class CreateParkingSpaceWidget extends StatefulWidget {
   const CreateParkingSpaceWidget({super.key});
@@ -12,7 +12,6 @@ class CreateParkingSpaceWidget extends StatefulWidget {
 }
 
 class _CreateParkingSpaceWidgetState extends State<CreateParkingSpaceWidget> {
-  late ParkingSpace parkingSpace;
   final _formkey = GlobalKey<FormState>();
   TextEditingController addressController = TextEditingController();
   TextEditingController priceController = TextEditingController();
@@ -21,7 +20,7 @@ class _CreateParkingSpaceWidgetState extends State<CreateParkingSpaceWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add new parkingspace'),
+        title: const Text('Add new parking space'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -61,19 +60,25 @@ class _CreateParkingSpaceWidgetState extends State<CreateParkingSpaceWidget> {
 
   void _saveData() async {
     if (_formkey.currentState?.validate() ?? false) {
-      setState(() {
-        parkingSpace = ParkingSpace.withUUID(
-            address: addressController.text,
-            pricePerHour: double.parse(priceController.text));
-      });
+      final address = addressController.text;
+      final pricePerHour = double.tryParse(priceController.text);
 
-      await ParkingSpaceRepository().add(parkingSpace);
+      try {
+        await context
+            .read<ParkingSpaceProvider>()
+            .createParkingSpace(address, pricePerHour!);
 
-      if (mounted) {
-        showCustomSnackBar(context,
-            'Parkingspace ${parkingSpace.address}, ${parkingSpace.pricePerHour} created',
-            type: 'success');
-        Navigator.pop(context, true);
+        if (mounted) {
+          showCustomSnackBar(context,
+              'Parkingspace $address, $pricePerHour created',
+              type: 'success');
+          Navigator.pop(context, true);
+        }
+      } catch (e) {
+        if (mounted) {
+          showCustomSnackBar(context, 'Failed to create parking space: $e',
+              type: 'error');
+        }
       }
     } else {
       showCustomSnackBar(context, 'Please fix the errors in the form',

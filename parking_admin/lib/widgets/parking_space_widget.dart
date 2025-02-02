@@ -84,30 +84,20 @@ class _ParkingSpaceWidgetState extends State<ParkingSpaceWidget> {
 
   void _editParkingSpace(
       BuildContext context, ParkingSpace parkingSpace) async {
-    final updatedParkingSpace = await Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) =>
             EditParkingSpaceWidget(parkingSpace: parkingSpace),
       ),
     );
-    if (updatedParkingSpace != null) {
-      setState(() {
-        this.parkingSpace = updatedParkingSpace;
-      });
-    }
   }
 
   void _deleteParkingSpace(
       BuildContext context, ParkingSpace parkingSpace) async {
-    final deleteParkingSpace = await showDialog<ParkingSpace>(
+     await showDialog<ParkingSpace>(
         context: context,
         builder: (context) =>
             DeleteParkingSpaceWidget(parkingSpace: parkingSpace));
-    if (deleteParkingSpace != null) {
-      setState(() {
-        widget.onDelete(parkingSpace);
-      });
-    }
   }
 }

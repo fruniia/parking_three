@@ -1,5 +1,5 @@
 # parking_admin
 Main function:
-- Handle parkingspaces
+- Handle parking spaces
 - Watch active parkings
 - Overview and statistics

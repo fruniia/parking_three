@@ -14,12 +14,19 @@ class ParkingAdmin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => ParkingProvider(
-        parkingRepository: ParkingRepository(),
-        parkingSpaceRepository: ParkingSpaceRepository(),
-        parkingCostService: ParkingCostService(),
-      ),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => ParkingProvider(
+            parkingRepository: ParkingRepository(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ParkingSpaceProvider(
+            parkingSpaceRepository: ParkingSpaceRepository(),
+          ),
+        )
+      ],
       child: MaterialApp(
         title: 'Parking app',
         theme: ThemeData(

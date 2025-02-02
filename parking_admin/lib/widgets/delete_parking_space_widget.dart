@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:parking_shared_logic/parking_shared_logic.dart';
 import 'package:parking_shared_ui/parking_shared_ui.dart';
+import 'package:provider/provider.dart';
 
 class DeleteParkingSpaceWidget extends StatefulWidget {
   final ParkingSpace parkingSpace;
@@ -29,7 +30,9 @@ class _DeleteParkingSpaceWidgetState extends State<DeleteParkingSpaceWidget> {
         },
         onConfirm: () async {
           try {
-            await ParkingSpaceRepository().delete(parkingSpace.id);
+            await context
+                .read<ParkingSpaceProvider>()
+                .deleteParkingSpace(parkingSpace);
 
             if (context.mounted) {
               showCustomSnackBar(

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 
-import 'package:parking_shared/parking_shared.dart';
+import 'package:parking_shared_logic/parking_shared_logic.dart';
 
 class VehicleDataStore implements InterfaceRepository<Vehicle> {
   String filePath = '../parking_server/vehicles.json';

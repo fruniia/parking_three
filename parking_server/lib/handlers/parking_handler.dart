@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:parking_server/repositories/parking_data_store.dart';
-import 'package:parking_shared/parking_shared.dart';
+import 'package:parking_server/repositories/index.dart';
+import 'package:parking_shared_logic/parking_shared_logic.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 

@@ -1,8 +1,6 @@
-import 'package:parking_server/handlers/parking_handler.dart';
-import 'package:parking_server/handlers/parking_space_handler.dart';
-import 'package:parking_server/handlers/person_handler.dart';
-import 'package:parking_server/handlers/vehicle_handler.dart';
+import 'package:parking_server/handlers/index.dart';
 import 'package:shelf_router/shelf_router.dart';
+
 
 class ServerSetup {
   ServerSetup._privateConstructor() {

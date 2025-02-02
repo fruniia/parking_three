@@ -101,7 +101,7 @@ Follow the instructions below to install and run the application:
 2. **Run the mobile app**
    Run the app on your Android
    ```bash
-   flutter run -d android  # On Android
+   flutter run
    ```
 
 ### Limitations

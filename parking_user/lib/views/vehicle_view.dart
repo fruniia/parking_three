@@ -46,7 +46,7 @@ class VehicleViewState extends State<VehicleView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('My vehicles'),
+        title: Text('${authService.currentUser!.name} vehicles'),
         backgroundColor: Colors.lightBlue.shade400,
       ),
       body: Consumer<VehicleProvider>(

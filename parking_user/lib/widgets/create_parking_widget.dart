@@ -24,10 +24,11 @@ class _ParkVehicleWidgetState extends State<ParkVehicleWidget> {
   @override
   Widget build(BuildContext context) {
     final authService = context.read<AuthProvider>();
+    final parkingSpaceService = context.read<ParkingSpaceProvider>();
     final parkingService = context.read<ParkingProvider>();
 
-    if (parkingService.parkingSpaces.isEmpty) {
-      parkingService.loadParkingSpaces();
+    if (parkingSpaceService.parkingSpaces.isEmpty) {
+      parkingSpaceService.loadParkingSpaces();
     }
 
     return Scaffold(
@@ -66,9 +67,9 @@ class _ParkVehicleWidgetState extends State<ParkVehicleWidget> {
             key: _formKey,
             child: Column(
               children: [
-                Consumer<ParkingProvider>(
-                  builder: (context, parkingService, child) {
-                    final parkingSpaces = parkingService.parkingSpaces;
+                Consumer<ParkingSpaceProvider>(
+                  builder: (context, parkingSpaceService, child) {
+                    final parkingSpaces = parkingSpaceService.parkingSpaces;
                     if (parkingSpaces.isEmpty) {
                       return Text('No parking spaces available');
                     }

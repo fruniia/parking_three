@@ -23,10 +23,11 @@ class _ParkingViewState extends State<ParkingView> {
   void _loadData() {
     try {
       final parkingService = context.read<ParkingProvider>();
+      final parkingSpaceService = context.read<ParkingSpaceProvider>();
       final vehicleService = context.read<VehicleProvider>();
       final authService = context.read<AuthProvider>();
 
-      parkingService.loadParkingSpaces();
+      parkingSpaceService.loadParkingSpaces();
       parkingService.loadActiveParkingSessions(authService);
       parkingService.loadCompletedParkingSessions(authService);
       vehicleService.loadVehicles();
@@ -40,6 +41,7 @@ class _ParkingViewState extends State<ParkingView> {
   @override
   Widget build(BuildContext context) {
     final parkingService = context.watch<ParkingProvider>();
+    final parkingSpaceService = context.watch<ParkingSpaceProvider>();
     return Scaffold(
       appBar: AppBar(
         title: Text('My Parkings'),
@@ -52,7 +54,7 @@ class _ParkingViewState extends State<ParkingView> {
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-                final parkingSpace = parkingService.parkingSpaces[index];
+                final parkingSpace = parkingSpaceService.parkingSpaces[index];
                 return ListTile(
                   tileColor: getBackgroundColor(index),
                   title: Text(parkingSpace.address),
@@ -60,7 +62,7 @@ class _ParkingViewState extends State<ParkingView> {
                       Text('Price per hour: ${parkingSpace.pricePerHour}'),
                 );
               },
-              childCount: parkingService.parkingSpaces.length,
+              childCount: parkingSpaceService.parkingSpaces.length,
             ),
           ),
           const SliverToBoxAdapter(child: Divider()),

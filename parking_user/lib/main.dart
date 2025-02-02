@@ -8,14 +8,15 @@ void main() {
   runApp(MultiProvider(providers: [
     Provider<ParkingRepository>(create: (_) => ParkingRepository()),
     Provider<ParkingSpaceRepository>(create: (_) => ParkingSpaceRepository()),
-    Provider<ParkingCostService>(create: (_) => ParkingCostService()),
     ChangeNotifierProvider(create: (context) => AuthProvider()),
     ChangeNotifierProvider(create: (context) => VehicleProvider()),
+    ChangeNotifierProvider(
+      create: (context) => ParkingSpaceProvider(
+          parkingSpaceRepository: context.read<ParkingSpaceRepository>()),
+    ),
     ChangeNotifierProvider<ParkingProvider>(create: (context) {
       return ParkingProvider(
-          parkingRepository: context.read<ParkingRepository>(),
-          parkingSpaceRepository: context.read<ParkingSpaceRepository>(),
-          parkingCostService: context.read<ParkingCostService>());
+          parkingRepository: context.read<ParkingRepository>());
     })
   ], child: const ParkingUser()));
 }

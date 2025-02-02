@@ -16,7 +16,6 @@ class _EditParkingSpaceWidgetState extends State<EditParkingSpaceWidget> {
   final _formkey = GlobalKey<FormState>();
   late TextEditingController addressController;
   late TextEditingController priceController;
-  bool _hasChanges = false;
 
   @override
   void initState() {
@@ -27,34 +26,27 @@ class _EditParkingSpaceWidgetState extends State<EditParkingSpaceWidget> {
         text: widget.parkingSpace.pricePerHour.toString());
   }
 
-  void _checkForChanges() {
-    setState(() {
-      _hasChanges = addressController.text != widget.parkingSpace.address ||
-          priceController.text != widget.parkingSpace.pricePerHour.toString();
-    });
+  @override
+  void dispose() {
+    addressController.dispose();
+    priceController.dispose();
+    super.dispose();
   }
 
   void _saveChanges() async {
     if (_formkey.currentState?.validate() ?? false) {
-      if (!_hasChanges) {
-        showCustomSnackBar(context, 'No changes made');
-        return;
-      }
+      final newAdddress = addressController.text;
+      final newPrice = double.tryParse(
+          priceController.text) ?? widget.parkingSpace.pricePerHour;
 
-      setState(() {
-        widget.parkingSpace.address = addressController.text;
-        widget.parkingSpace.pricePerHour =
-            double.tryParse(priceController.text) ??
-                widget.parkingSpace.pricePerHour;
-      });
       try {
         await context
             .read<ParkingSpaceProvider>()
-            .updateParkingSpace(widget.parkingSpace);
+            .updateAddressAndPrice(widget.parkingSpace, newAdddress, newPrice);
 
         if (mounted) {
           showCustomSnackBar(context,
-              'Parkingspace ${widget.parkingSpace.address}, ${widget.parkingSpace.pricePerHour} updated',
+              'Parking space updated successfully',
               type: 'success');
           Navigator.pop(context, widget.parkingSpace);
         }
@@ -72,9 +64,6 @@ class _EditParkingSpaceWidgetState extends State<EditParkingSpaceWidget> {
 
   @override
   Widget build(BuildContext context) {
-    addressController.addListener(_checkForChanges);
-    priceController.addListener(_checkForChanges);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit'),

@@ -65,4 +65,13 @@ class ParkingSpaceProvider extends ChangeNotifier {
       throw Exception('Failed to delete parking space: $e');
     }
   }
+
+  Future<void> updateAddressAndPrice(
+      ParkingSpace parkingSpace, String newAddress, double newPrice) async {
+    parkingSpace.address = newAddress;
+    parkingSpace.pricePerHour = newPrice;
+
+    await updateParkingSpace(parkingSpace);
+    notifyListeners();
+  }
 }

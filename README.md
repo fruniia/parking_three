@@ -46,13 +46,16 @@ Using excisting server from the second exercise.
 ## Installation - Flutter and Dart
 Follow the instructions below to install and run the application:
 1. **Install Flutter**
+
    If you haven't installed Flutter yet, follow the instructions in the [Flutter Installation Guide](https://flutter.dev/docs/get-started/install)
 
 2. **Install Dart**
+
    If you haven't installed Dart yet, follow the instructions in the [Dart Installation Guide](https://dart.dev/get-dart)
 
 3. **Verify installations**
-   After installation, verify that everything is set up correctly by running:
+   
+      After installation, verify that everything is set up correctly by running:
    ```bash
    flutter doctor
    flutter --version
@@ -99,7 +102,7 @@ Follow the instructions below to install and run the application:
    flutter pub get
    ```
 2. **Run the mobile app**
-   Run the app on your Android
+   Run the app with Android
    ```bash
    flutter run
    ```

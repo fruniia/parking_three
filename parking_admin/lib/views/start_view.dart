@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:parking_admin/views/index.dart';
 
 class StartPageView extends StatelessWidget {
   const StartPageView({super.key});
@@ -8,14 +9,27 @@ class StartPageView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Welcome to the Parking app!'),
+        title: const Text('Parking admin'),
       ),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'HomePage',
+            TextButton(
+              onPressed: () {
+                final navViewState =
+                    context.findAncestorStateOfType<NavigationViewState>();
+                navViewState?.setSelectedIndex(1);
+              },
+              child: const Text('Go to Administration page'),
+            ),
+            TextButton(
+              onPressed: () {
+                final navViewState =
+                    context.findAncestorStateOfType<NavigationViewState>();
+                navViewState?.setSelectedIndex(2);
+              },
+              child: const Text('Go parking statistics'),
             )
           ],
         ),

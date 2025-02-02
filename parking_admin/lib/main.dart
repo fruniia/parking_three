@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:parking_admin/views/navigation_view.dart';
+import 'package:parking_admin/views/index.dart';
+import 'package:parking_shared_logic/parking_shared_logic.dart';
+import 'package:parking_shared_ui/parking_shared_ui.dart';
+
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const ParkingAdmin());
@@ -10,13 +14,20 @@ class ParkingAdmin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Parking app',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
-        useMaterial3: true,
+    return ChangeNotifierProvider(
+      create: (context) => ParkingProvider(
+        parkingRepository: ParkingRepository(),
+        parkingSpaceRepository: ParkingSpaceRepository(),
+        parkingCostService: ParkingCostService(),
       ),
-      home: const NavigationView(),
+      child: MaterialApp(
+        title: 'Parking app',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
+          useMaterial3: true,
+        ),
+        home: const NavigationView(),
+      ),
     );
   }
 }

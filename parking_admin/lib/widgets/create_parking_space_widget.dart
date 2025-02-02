@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:parking_admin/utils/validate.dart';
-import 'package:parking_shared/parking_shared.dart';
+import 'package:parking_admin/utils/index.dart';
+import 'package:parking_shared_logic/parking_shared_logic.dart';
+import 'package:parking_shared_ui/parking_shared_ui.dart';
 
 class CreateParkingSpaceWidget extends StatefulWidget {
   const CreateParkingSpaceWidget({super.key});
@@ -69,19 +70,14 @@ class _CreateParkingSpaceWidgetState extends State<CreateParkingSpaceWidget> {
       await ParkingSpaceRepository().add(parkingSpace);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: Colors.green,
-          content: Text(
-              'Parkingspace ${parkingSpace.address}, ${parkingSpace.pricePerHour} created'),
-        ));
+        showCustomSnackBar(context,
+            'Parkingspace ${parkingSpace.address}, ${parkingSpace.pricePerHour} created',
+            type: 'success');
         Navigator.pop(context, true);
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Please fix the errors in the form'),
-            backgroundColor: Colors.red),
-      );
+      showCustomSnackBar(context, 'Please fix the errors in the form',
+          type: 'error');
     }
   }
 }

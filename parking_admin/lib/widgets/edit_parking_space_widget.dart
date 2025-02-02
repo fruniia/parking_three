@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:parking_shared/parking_shared.dart';
-import 'package:parking_admin/utils/validate.dart';
+import 'package:parking_admin/utils/index.dart';
+import 'package:parking_shared_logic/parking_shared_logic.dart';
+import 'package:parking_shared_ui/parking_shared_ui.dart';
 
 class EditParkingSpaceWidget extends StatefulWidget {
   final ParkingSpace parkingSpace;
@@ -35,12 +36,7 @@ class _EditParkingSpaceWidgetState extends State<EditParkingSpaceWidget> {
   void _saveChanges() async {
     if (_formkey.currentState?.validate() ?? false) {
       if (!_hasChanges) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No changes made'),
-            backgroundColor: Colors.lightGreen,
-          ),
-        );
+        showCustomSnackBar(context, 'No changes made');
         return;
       }
 
@@ -55,20 +51,14 @@ class _EditParkingSpaceWidgetState extends State<EditParkingSpaceWidget> {
           .update(widget.parkingSpace.id, widget.parkingSpace);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: Colors.green,
-          content: Text(
-              'Parkingspace ${widget.parkingSpace.address}, ${widget.parkingSpace.pricePerHour} updated'),
-        ));
-
+        showCustomSnackBar(context,
+            'Parkingspace ${widget.parkingSpace.address}, ${widget.parkingSpace.pricePerHour} updated',
+            type: 'success');
         Navigator.pop(context, widget.parkingSpace);
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Please fix the errors in the form'),
-            backgroundColor: Colors.red),
-      );
+      showCustomSnackBar(context, 'Please fix the errors in the form',
+          type: 'error');
     }
   }
 
@@ -76,7 +66,7 @@ class _EditParkingSpaceWidgetState extends State<EditParkingSpaceWidget> {
   Widget build(BuildContext context) {
     addressController.addListener(_checkForChanges);
     priceController.addListener(_checkForChanges);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit'),

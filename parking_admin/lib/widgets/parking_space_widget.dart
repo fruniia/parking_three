@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:parking_admin/widgets/delete_parking_space_widget.dart';
-import 'package:parking_admin/widgets/edit_parking_space_widget.dart';
-import 'package:parking_shared/parking_shared.dart';
+import 'package:parking_admin/widgets/index.dart';
+import 'package:parking_shared_logic/parking_shared_logic.dart';
 
 class ParkingSpaceWidget extends StatefulWidget {
   const ParkingSpaceWidget(
-      {super.key, required this.parkingSpace, required this.index, required this.onDelete});
+      {super.key,
+      required this.parkingSpace,
+      required this.index,
+      required this.onDelete});
   final ParkingSpace parkingSpace;
   final int index;
-  final Function(ParkingSpace) onDelete;
+  final void Function(ParkingSpace) onDelete;
 
   @override
   State<StatefulWidget> createState() => _ParkingSpaceWidgetState();
@@ -31,43 +33,50 @@ class _ParkingSpaceWidgetState extends State<ParkingSpaceWidget> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-           CircleAvatar(
-              child: Text('${index + 1}'),
-            ),
-            const SizedBox(width: 16,),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  parkingSpace.address,
-                  style: const TextStyle(fontSize: 16, color: Colors.black),
-                ),
-                Text('Price per hour: SEK ${parkingSpace.pricePerHour.toString()}'),
-              ],
-            ),const Spacer(),
-             SizedBox(
-              width: 80,
-              child: Row(mainAxisAlignment: MainAxisAlignment.end, mainAxisSize: MainAxisSize.min, children: [
-                Tooltip(
-                  message: 'Edit',
-                  child: IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.blueGrey),
-                    onPressed: () async {
-                      _editParkingSpace(context, parkingSpace);
-                    },
+          CircleAvatar(
+            child: Text('${index + 1}'),
+          ),
+          const SizedBox(
+            width: 16,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                parkingSpace.address,
+                style: const TextStyle(fontSize: 16, color: Colors.black),
+              ),
+              Text(
+                  'Price per hour: SEK ${parkingSpace.pricePerHour.toString()}'),
+            ],
+          ),
+          const Spacer(),
+          SizedBox(
+            width: 80,
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Tooltip(
+                    message: 'Edit',
+                    child: IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blueGrey),
+                      onPressed: () async {
+                        _editParkingSpace(context, parkingSpace);
+                      },
+                    ),
                   ),
-                ),
-                Tooltip(
-                  message: 'Delete',
-                  child: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.blueGrey),
-                    onPressed: () async {
-                      _deleteParkingSpace(context, parkingSpace);
-                    },
+                  Tooltip(
+                    message: 'Delete',
+                    child: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.blueGrey),
+                      onPressed: () async {
+                        _deleteParkingSpace(context, parkingSpace);
+                      },
+                    ),
                   ),
-                ),
-              ]),
-            ),
+                ]),
+          ),
         ],
       ),
     );

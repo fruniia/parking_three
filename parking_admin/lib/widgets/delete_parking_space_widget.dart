@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:parking_shared/parking_shared.dart';
+import 'package:parking_shared_logic/parking_shared_logic.dart';
+import 'package:parking_shared_ui/parking_shared_ui.dart';
 
 class DeleteParkingSpaceWidget extends StatefulWidget {
   final ParkingSpace parkingSpace;
@@ -18,40 +19,31 @@ class _DeleteParkingSpaceWidgetState extends State<DeleteParkingSpaceWidget> {
   @override
   Widget build(BuildContext context) {
     final parkingSpace = widget.parkingSpace;
-    return AlertDialog(
-      title: Text(
-          'Are you sure you want to delete this parkingspace \n${parkingSpace.address}'),
-      actions: [
-        TextButton(
-            onPressed: () {
-              Navigator.pop(context, null);
-            },
-            child: const Text('Cancel')),
-        TextButton(
-          onPressed: () async {
-            try {
-              await ParkingSpaceRepository().delete(parkingSpace.id);
+    return CustomAlertDialog(
+        title: 'Are you sure you want to delete?',
+        message: parkingSpace.address,
+        cancelText: 'Cancel',
+        confirmText: 'Confirm',
+        onCancel: () {
+          Navigator.pop(context);
+        },
+        onConfirm: () async {
+          try {
+            await ParkingSpaceRepository().delete(parkingSpace.id);
 
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      backgroundColor: Colors.green,
-                      content:
-                          Text('${parkingSpace.address} deleted successfully')),
-                );
-                Navigator.pop(context, parkingSpace);
-              }
-            } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to delete parkingspace: $e')),
-                );
-              }
+            if (context.mounted) {
+              showCustomSnackBar(
+                  context, '${parkingSpace.address} deleted successfully',
+                  type: 'success');
+
+              Navigator.pop(context, parkingSpace);
             }
-          },
-          child: const Text('Confirm'),
-        )
-      ],
-    );
+          } catch (e) {
+            if (context.mounted) {
+              showCustomSnackBar(context, 'Failed to delete parking space: $e',
+                  type: 'error');
+            }
+          }
+        });
   }
 }

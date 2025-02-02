@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:parking_admin/widgets/create_parking_space_widget.dart';
-import 'package:parking_admin/widgets/parking_space_widget.dart';
-import 'package:parking_shared/parking_shared.dart';
+import 'package:parking_admin/widgets/index.dart';
+import 'package:parking_shared_logic/parking_shared_logic.dart';
+import 'package:parking_shared_ui/parking_shared_ui.dart';
+import 'package:provider/provider.dart';
 
 class AdministrationView extends StatefulWidget {
   const AdministrationView({super.key});
 
   @override
-  State<StatefulWidget> createState() => _AdministrationViewState();
+  AdministrationViewState createState() => AdministrationViewState();
 }
 
-class _AdministrationViewState extends State<AdministrationView> {
-  // Future which gets parkingSpaces, initialized as an empty list
-  late Future<List<ParkingSpace>> getParkingSpaces = Future.value([]);
-  late List<ParkingSpace> parkingSpaces;
-
+class AdministrationViewState extends State<AdministrationView> {
   @override
   void initState() {
     super.initState();
-    _fetchParkingSpaces();
+    _loadData();
+  }
+
+  void _loadData() async {
+    try {
+      final parkingProvider = context.read<ParkingProvider>();
+      await parkingProvider.loadParkingSpaces();
+    } catch (e) {
+      if (mounted) {
+        showCustomSnackBar(context, 'Failed to load data: $e', type: 'error');
+      }
+    }
   }
 
   @override
@@ -42,44 +50,30 @@ class _AdministrationViewState extends State<AdministrationView> {
               height: 20,
             ),
             Expanded(
-              child: FutureBuilder<List<ParkingSpace>>(
-                  future: getParkingSpaces,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.error,
-                                color: Colors.red, size: 50),
-                            const SizedBox(height: 10),
-                            Text(
-                              'An error occurred: ${snapshot.error}',
-                              style: const TextStyle(
-                                  fontSize: 16, color: Colors.red),
-                            )
-                          ],
-                        ),
-                      );
-                    } else if (snapshot.hasData) {
-                      return ListView.builder(
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          return ParkingSpaceWidget(
-                            parkingSpace: snapshot.data![index],
-                            index: index,
-                            onDelete: _handleDeleteParkingSpace,
-                          );
-                        },
-                      );
-                    }
-                    return const CircularProgressIndicator();
-                  }),
+              child: Consumer<ParkingProvider>(
+                  builder: (context, parkingProvider, child) {
+                if (parkingProvider.parkingSpaces.isEmpty) {
+                  return const Center(child: CircularProgressIndicator());
+                } else {
+                  return ListView.builder(
+                    itemCount: parkingProvider.parkingSpaces.length,
+                    itemBuilder: (context, index) {
+                      return ParkingSpaceWidget(
+                          parkingSpace: parkingProvider.parkingSpaces[index],
+                          index: index,
+                          onDelete: (ParkingSpace parkingSpace) {
+                            parkingProvider.deleteParkingSpace(
+                                parkingProvider.parkingSpaces[index]);
+                          });
+                    },
+                  );
+                }
+              }),
             ),
             FloatingActionButton.extended(
-              onPressed: navigateToCreateView,
+              onPressed: () {
+                navigateToCreateView(context);
+              },
               label: const Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
@@ -94,37 +88,17 @@ class _AdministrationViewState extends State<AdministrationView> {
     );
   }
 
-  void navigateToCreateView() async {
+  void navigateToCreateView(BuildContext context) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const CreateParkingSpaceWidget()),
     );
     if (result == true) {
-      setState(() {
-        getParkingSpaces = ParkingSpaceRepository().getAll();
-      });
+      if (context.mounted) {
+        final parkingProvider =
+            Provider.of<ParkingProvider>(context, listen: false);
+        await parkingProvider.loadParkingSpaces();
+      }
     }
-  }
-
-  void _handleDeleteParkingSpace(ParkingSpace parkingSpace) {
-    setState(() {
-      parkingSpaces.remove(parkingSpace);
-      getParkingSpaces = Future.value(parkingSpaces);
-    });
-  }
-
-  void _fetchParkingSpaces() {
-    ParkingSpaceRepository().getAll().then((spaces) {
-      setState(() {
-        parkingSpaces = spaces;
-        getParkingSpaces = Future.value(parkingSpaces);
-      });
-      return spaces;
-    }).catchError((error) {
-      setState(() {
-        getParkingSpaces = Future.value(<ParkingSpace>[]);
-      });
-      return Future.value(<ParkingSpace>[]);
-    });
   }
 }

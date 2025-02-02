@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:parking_shared/parking_shared.dart';
+import 'package:parking_admin/widgets/index.dart';
+import 'package:parking_shared_ui/parking_shared_ui.dart';
+import 'package:provider/provider.dart';
 
 class ParkingView extends StatefulWidget {
   const ParkingView({super.key});
@@ -9,112 +11,105 @@ class ParkingView extends StatefulWidget {
 }
 
 class _ParkingViewState extends State<ParkingView> {
-  // Future which gets parkingSpaces, initialized as an empty list
-  late Future<List<ParkingSpace>> getParkingSpaces = Future.value([]);
-  late Future<List<Parking>> getParkings = Future.value([]);
-  late List<ParkingSpace> parkingSpaces;
-  late List<Parking> parkings;
-
+  final ParkingCostService costService = ParkingCostService();
   @override
   void initState() {
     super.initState();
-    _fetchParkingSpaces();
-    _fetchParkings();
+
+    _loadData();
+  }
+
+  void _loadData() async {
+    try {
+      final parkingProvider = context.read<ParkingProvider>();
+      // Admin does not have a login
+      // Hardcoded: isAdmin = true and authService = null
+      parkingProvider.isAdmin = true;
+      await parkingProvider.loadParkingSpaces();
+      await parkingProvider.loadActiveParkingSessions(null);
+      await parkingProvider.loadCompletedParkingSessions(null);
+    } catch (e) {
+      if (mounted) {
+        showCustomSnackBar(context, 'Failed to load data: $e', type: 'error');
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Active parkings'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Text(
-              'List of active parkings',
-              style: TextStyle(
-                fontSize: 26,
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Expanded(
-              child: FutureBuilder<List<Parking>>(
-                  future: getParkings,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.error,
-                                color: Colors.red, size: 50),
-                            const SizedBox(height: 10),
-                            Text(
-                              'An error occurred: ${snapshot.error}',
-                              style: const TextStyle(
-                                  fontSize: 16, color: Colors.red),
-                            )
-                          ],
-                        ),
-                      );
-                    } else if (snapshot.hasData) {
-                      return ListView.builder(
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          var parking = snapshot.data![index];
+    return Consumer<ParkingProvider>(
+        builder: (context, parkingProvider, child) {
+      if (parkingProvider.activeParkingSessions.isEmpty) {
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            title: const Text('Active parking sessions'),
+          ),
+          body: const Center(child: CircularProgressIndicator()),
+        );
+      }
 
-                          return ListTile(
-                            title: Text(
-                                'Parking at ${parking.parkingSpace.address.toString()}'),
-                            subtitle: Text(
-                                'Licenseplate: ${parking.vehicle.licensePlate}\n'
-                                'Start date: ${formatDate(parking.start)}\n'
-                                'Start time: ${formatTime(parking.start)}'),
-                          );
-                        },
-                      );
-                    }
-                    return const CircularProgressIndicator();
-                  }),
-            ),
-          ],
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: const Text('Active parking sessions'),
         ),
-      ),
-    );
-  }
-
-  void _fetchParkingSpaces() {
-    ParkingSpaceRepository().getAll().then((spaces) {
-      setState(() {
-        parkingSpaces = spaces;
-        getParkingSpaces = Future.value(parkingSpaces);
-      });
-    }).catchError((error) {
-      setState(() {
-        getParkingSpaces = Future.value(<ParkingSpace>[]);
-      });
-    });
-  }
-
-  void _fetchParkings() {
-    ParkingRepository().getAll().then((items) {
-      List<Parking> activeParkings =
-          items.where((parking) => parking.stop == null).toList();
-      setState(() {
-        parkings = activeParkings;
-        getParkings = Future.value(parkings);
-      });
-    }).catchError((error) {
-      setState(() {
-        getParkings = Future.value(<Parking>[]);
-      });
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Top 3 Most Popular Parking Spaces',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  parkingProvider.mostPopularParkingSpaces.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Text(
+                            'No popular parking spaces found',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        )
+                      : Column(
+                          children: parkingProvider.mostPopularParkingSpaces
+                              .map<Widget>((data) =>
+                                  ParkingSpaceCard(parkingSpace: data))
+                              .toList(),
+                        )
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Text('Active parking sessions',
+                  style: TextStyle(fontSize: 22)),
+              const SizedBox(height: 20),
+              Expanded(
+                  child: ActiveParkingGrid(
+                      parkingProvider: parkingProvider,
+                      costService: costService)),
+              const SizedBox(height: 20),
+              const Text(
+                'Statistics',
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                  'Number of active parking sessions: ${parkingProvider.activeParkingSessions.length}'),
+              const SizedBox(height: 10),
+              Text(
+                'Overall total earning: ${costService.calculateTotalEarning(parkingProvider.activeParkingSessions, parkingProvider.completedParkingSessions).toStringAsFixed(2)} SEK',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      );
     });
   }
 }

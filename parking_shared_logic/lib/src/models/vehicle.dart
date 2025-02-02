@@ -1,4 +1,4 @@
-import 'package:parking_shared/parking_shared.dart';
+import 'package:parking_shared_logic/parking_shared_logic.dart';
 import 'package:uuid/uuid.dart';
 
 class Vehicle {

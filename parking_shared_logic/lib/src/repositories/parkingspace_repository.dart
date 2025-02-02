@@ -1,8 +1,11 @@
-import 'package:parking_shared/parking_shared.dart';
-import 'package:parking_shared/src/utils/fetch_data.dart';
+import 'dart:io';
+
+import 'package:parking_shared_logic/parking_shared_logic.dart';
 
 class ParkingSpaceRepository implements InterfaceRepository<ParkingSpace> {
-  final baseUrl = "http://localhost:8080/parkingSpaces";
+    final String baseUrl = Platform.isAndroid
+      ? "http://10.0.2.2:8080/parkingSpaces"
+      : "http://localhost:8080/parkingSpaces";
 
   @override
   Future<ParkingSpace?> add(ParkingSpace parkingSpace) async {

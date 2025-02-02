@@ -1,13 +1,12 @@
-name: parking_shared
-description: A starting point for Dart libraries or applications.
+name: parking_shared_logic
+description: A shared library for models, repositories, enums and utils
+publish_to: 'none'
 version: 1.0.0
 
 environment:
   sdk: ^3.5.3
 
-# Add regular dependencies here.
 dependencies:
-  # path: ^1.8.0
   uuid: ^4.4.2
   http: ^1.1.0
   intl: ^0.20.1

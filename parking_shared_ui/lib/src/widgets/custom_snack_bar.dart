@@ -25,6 +25,8 @@ void showCustomSnackBar(BuildContext context, String message,
     SnackBar(
       backgroundColor: backgroundColor,
       content: Text(message),
+      behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.only(bottom: 80.0),
     ),
   );
 }

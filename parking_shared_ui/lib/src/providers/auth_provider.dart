@@ -31,7 +31,7 @@ class AuthProvider extends ChangeNotifier {
       _status = UserAuthStatus.notAuthenticated;
       _currentUser = null;
       notifyListeners();
-      throw 'Login failed $e';
+      throw 'Login failed.\n$e';
     }
   }
 
@@ -56,7 +56,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> register(String ssn, String name) async {
     if (_status == UserAuthStatus.inProgress) return;
-    
+
     _status = UserAuthStatus.inProgress;
     notifyListeners();
 
@@ -76,7 +76,7 @@ class AuthProvider extends ChangeNotifier {
       _status = UserAuthStatus.notAuthenticated;
       _currentUser = null;
       notifyListeners();
-      throw 'Failed to register user: $e';
+      throw 'Failed to register user:\n$e';
     }
   }
 }

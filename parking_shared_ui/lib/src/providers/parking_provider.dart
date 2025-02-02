@@ -4,14 +4,11 @@ import 'package:parking_shared_ui/parking_shared_ui.dart';
 
 class ParkingProvider extends ChangeNotifier {
   final ParkingRepository parkingRepository;
-  final ParkingSpaceRepository parkingSpaceRepository;
-  final ParkingCostService parkingCostService;
 
   List<Parking> _completedParkingSessions = [];
   List<Parking> _activeParkingSessions = [];
-  List<ParkingSpace> _parkingSpaces = [];
 
-  bool _parkingSpacesLoaded = false;
+
   bool _activeSessionsLoaded = false;
   bool _completedSessionsLoaded = false;
 
@@ -19,43 +16,11 @@ class ParkingProvider extends ChangeNotifier {
 
   List<Parking> get activeParkingSessions => _activeParkingSessions;
   List<Parking> get completedParkingSessions => _completedParkingSessions;
-  List<ParkingSpace> get parkingSpaces => _parkingSpaces;
+
 
   ParkingProvider(
       {required this.parkingRepository,
-      required this.parkingSpaceRepository,
-      required this.parkingCostService,
       this.isAdmin = false});
-
-  Future<List<ParkingSpace>> loadParkingSpaces() async {
-    if (_parkingSpaces.isNotEmpty && _parkingSpacesLoaded) {
-      return _parkingSpaces;
-    }
-
-    try {
-      final parkingSpaces = await ParkingSpaceRepository().getAll();
-
-      _parkingSpaces.clear();
-      _parkingSpaces.addAll(parkingSpaces);
-      _parkingSpacesLoaded = true;
-
-      notifyListeners();
-    } catch (e) {
-      _parkingSpaces = [];
-      throw Exception('Failed to load parkingspaces');
-    }
-    return _parkingSpaces;
-  }
-
-  Future<void> deleteParkingSpace(ParkingSpace parkingSpace) async {
-    try {
-      await ParkingSpaceRepository().delete(parkingSpace.id);
-      _parkingSpaces.remove(parkingSpace);
-      notifyListeners();
-    } catch (e) {
-      throw Exception('Failed to delete parking space: $e');
-    }
-  }
 
   Future<List<Parking>> loadActiveParkingSessions(
       AuthProvider? authService) async {

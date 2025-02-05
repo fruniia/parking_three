@@ -1,7 +1,10 @@
 # Parking Three: Parking Admin and Parking User
 This is the third exercise in Programming with Dart/Flutter. 
+
 A mobile app for users who wants to park a vehicle.
+
 A desktop app for admins to handle parking spaces.
+
 Using excisting server from the second exercise.
 
 ## Project overview
@@ -69,12 +72,14 @@ Follow the instructions below to install and run the application:
 
 ## Start the server
 1. **Install dependencies**
+
    Navigate to the `parking_server` directory and install dependencies:
    ```bash
    cd parking_server
    dart pub get
    ```
 2. **Run the server:**
+
    Start the server by running the following:
    ```
    dart run parking_server:server
@@ -83,12 +88,14 @@ Follow the instructions below to install and run the application:
 
 ### Start the desktop application Parking Admin
 1. **Install dependencies**
+
    Navigate to the `parking_admin` directory and install dependencies:
    ```bash
    cd parking_admin
    flutter pub get
    ```
 2. **Run the desktop app**
+
    Run the app on Windows:
    ```bash
    flutter run -d windows # On Windows
@@ -96,6 +103,7 @@ Follow the instructions below to install and run the application:
 
 ### Start the mobile application Parking User
 1. **Install dependencies**
+
    Navigate to the `parking_user` directory and install dependencies:
    ```bash
    cd parking_user

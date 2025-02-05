@@ -19,13 +19,13 @@ class _CreateVehicleWidgetState extends State<CreateVehicleWidget> {
   @override
   void initState() {
     super.initState();
-    final authService = context.read<AuthProvider>();
-    _currentUser = authService.currentUser!;
+    final authProvider = context.read<AuthProvider>();
+    _currentUser = authProvider.currentUser!;
   }
 
   @override
   Widget build(BuildContext context) {
-    final vehicleService = context.read<VehicleProvider>();
+    final vehicleProvider = context.read<VehicleProvider>();
 
     return Scaffold(
       appBar: AppBar(title: Text('Add new vehicle')),
@@ -68,7 +68,7 @@ class _CreateVehicleWidgetState extends State<CreateVehicleWidget> {
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     try {
-                      await vehicleService.createAndAddVehicle(
+                      await vehicleProvider.createAndAddVehicle(
                         _licensePlateController.text,
                         _currentUser,
                         _selectedVehicleType,

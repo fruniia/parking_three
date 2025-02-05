@@ -24,7 +24,7 @@ class _ParkingViewState extends State<ParkingView> {
       final parkingProvider = context.read<ParkingProvider>();
       final parkingSpaceProvider = context.read<ParkingSpaceProvider>();
       // Admin does not have a login
-      // Hardcoded: isAdmin = true and authService = null
+      // Hardcoded: isAdmin = true and authProvider = null
       parkingProvider.isAdmin = true;
       await parkingSpaceProvider.loadParkingSpaces();
       await parkingProvider.loadActiveParkingSessions(null);

@@ -17,7 +17,7 @@ class NavigationViewState extends State<NavigationView> {
     NavigationRailDestination(
         icon: Icon(Icons.local_parking), label: Text('Administration')),
     NavigationRailDestination(
-        icon: Icon(Icons.access_time), label: Text('Active parkings')),
+        icon: Icon(Icons.access_time), label: Text('Parking statistics')),
   ];
 
   var pages = const [StartPageView(), AdministrationView(), ParkingView()];

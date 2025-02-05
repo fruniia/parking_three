@@ -25,71 +25,79 @@ class _RegistrationWidgetState extends State<RegistrationWidget> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(labelText: 'Name'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  controller: _ssnController,
-                  decoration:
-                      InputDecoration(labelText: 'Social Security Number'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your SSN\nYYYYMMDDXXXX';
-                    }
-                    if (!isValidLuhn(value)) {
-                      return 'Invalid SSN';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      final ssn = _ssnController.text;
-                      final name = _nameController.text;
-                      try {
-                        await Provider.of<AuthProvider>(context, listen: false)
-                            .register(ssn, name);
-                        if (context.mounted) {
-                          showCustomSnackBar(context, 'Registration succeeded',
-                              type: 'success');
-                        }
+          child:
+              Consumer<AuthProvider>(builder: (context, authProvider, child) {
+            return Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(labelText: 'Name'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your name';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _ssnController,
+                    decoration:
+                        InputDecoration(labelText: 'Social Security Number'),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your SSN\nYYYYMMDDXXXX';
+                      }
+                      if (!isValidLuhn(value)) {
+                        return 'Invalid SSN';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState?.validate() ?? false) {
+                        final ssn = _ssnController.text;
+                        final name = _nameController.text;
+                        try {
+                          await authProvider.register(ssn, name);
 
-                        if (context.mounted) {
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const NavigationView()));
-                        }
-                      } catch (e) {
-                        if (context.mounted) {
-                          showCustomSnackBar(
-                              context, 'Registration failed:\n$e',
-                              type: 'error');
+                          if (context.mounted) {
+                            showCustomSnackBar(
+                                context, 'Registration succeeded',
+                                type: 'success');
+                          }
+
+                          if (context.mounted) {
+                            await authProvider
+                                .authenticateAfterRegistration(ssn);
+                            if (context.mounted) {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const NavigationView()));
+                            }
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            showCustomSnackBar(
+                                context, 'Registration failed:\n$e',
+                                type: 'error');
+                          }
                         }
                       }
-                    }
-                  },
-                  child: Text('Register'),
-                ),
-              ],
-            ),
-          ),
+                    },
+                    child: Text('Register'),
+                  ),
+                ],
+              ),
+            );
+          }),
         ),
       ),
     );

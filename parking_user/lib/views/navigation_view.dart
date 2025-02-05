@@ -67,6 +67,7 @@ class NavigationView extends StatelessWidget {
             onConfirm: () {
               Navigator.pop(context);
               context.read<AuthProvider>().logout();
+              context.read<ParkingProvider>().clearData();
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(

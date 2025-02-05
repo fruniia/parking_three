@@ -72,11 +72,23 @@ class AuthProvider extends ChangeNotifier {
 
       Person newPerson = Person.withUUID(name: name, socialSecNumber: ssn);
       await addUser(newPerson);
+      _status = UserAuthStatus.notAuthenticated;
+      _currentUser = null;
+      notifyListeners();
+
     } catch (e) {
       _status = UserAuthStatus.notAuthenticated;
       _currentUser = null;
       notifyListeners();
       throw 'Failed to register user:\n$e';
+    }
+  }
+
+    Future<void> authenticateAfterRegistration(String ssn) async {
+    try {
+      await login(ssn);
+    } catch (e) {
+      throw 'Authentication failed after registration: $e';
     }
   }
 }

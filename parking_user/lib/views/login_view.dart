@@ -13,55 +13,49 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(builder: (context, authService, child) {
-      if (authService.status == UserAuthStatus.notAuthenticated &&
-          authService.currentUser == null) {
-            
-        authService.logout();
-      }
-
-      return Center(
-        child: Form(
-          key: _key,
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 350),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('Welcome to \nParking app'),
-                const SizedBox(
-                  height: 16,
-                ),
-                TextFormField(
-                  controller: _ssnController,
-                  enabled: authService.status != UserAuthStatus.inProgress,
-                  decoration: const InputDecoration(
-                      prefixIcon: Icon(Icons.abc_rounded),
-                      labelText: 'Socialsecuritynumber'),
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Please enter socialsecuritynumber'
-                      : null,
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                const PasswordField(),
-                const SizedBox(
-                  height: 16,
-                ),
-                authService.status == UserAuthStatus.inProgress
+    return Center(
+      child: Form(
+        key: _key,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 350),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Welcome to \nParking app'),
+              const SizedBox(
+                height: 16,
+              ),
+              TextFormField(
+                controller: _ssnController,
+                decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.abc_rounded),
+                    labelText: 'Socialsecuritynumber'),
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter socialsecuritynumber'
+                    : null,
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              const PasswordField(),
+              const SizedBox(
+                height: 16,
+              ),
+              Builder(builder: (context) {
+                final authProvider = context.read<AuthProvider>();
+                return authProvider.status == UserAuthStatus.inProgress
                     ? const CircularProgressIndicator()
                     : ElevatedButton(
                         onPressed: () async {
                           if (_key.currentState!.validate()) {
-                            final authService = context.read<AuthProvider>();
+                            
                             try {
-                              await authService.login(_ssnController.text);
-                              if (authService.status ==
+                              await authProvider.login(_ssnController.text);
+                              if (authProvider.status ==
                                       UserAuthStatus.authenticated &&
                                   context.mounted) {
                                 showCustomSnackBar(context,
-                                    '${authService.currentUser?.name ?? 'User'} - Logged in successfully',
+                                    '${authProvider.currentUser?.name ?? 'User'} - Logged in successfully',
                                     type: 'success');
 
                                 if (context.mounted) {
@@ -71,7 +65,7 @@ class LoginView extends StatelessWidget {
                                           builder: (context) =>
                                               const NavigationView()));
                                 }
-                              } else if (authService.status ==
+                              } else if (authProvider.status ==
                                   UserAuthStatus.notAuthenticated) {
                                 if (context.mounted) {
                                   showCustomSnackBar(context,
@@ -88,28 +82,27 @@ class LoginView extends StatelessWidget {
                             }
                           }
                         },
-                        child: const Text('Login')),
-                const SizedBox(height: 8),
-                TextButton(
-                  onPressed: () {
-                    authService.logout();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RegistrationWidget(),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    'Don\'t have an account? Register here.',
-                    style: TextStyle(color: Colors.blue),
-                  ),
+                        child: const Text('Login'));
+              }),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RegistrationWidget(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  'Don\'t have an account? Register here.',
+                  style: TextStyle(color: Colors.blue),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      );
-    });
+      ),
+    );
   }
 }

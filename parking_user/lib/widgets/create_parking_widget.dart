@@ -23,12 +23,12 @@ class _ParkVehicleWidgetState extends State<ParkVehicleWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = context.read<AuthProvider>();
-    final parkingSpaceService = context.read<ParkingSpaceProvider>();
-    final parkingService = context.read<ParkingProvider>();
+    final authProvider = context.read<AuthProvider>();
+    final parkingSpaceProvider = context.read<ParkingSpaceProvider>();
+    final parkingProvider = context.read<ParkingProvider>();
 
-    if (parkingSpaceService.parkingSpaces.isEmpty) {
-      parkingSpaceService.loadParkingSpaces();
+    if (parkingSpaceProvider.parkingSpaces.isEmpty) {
+      parkingSpaceProvider.loadParkingSpaces();
     }
 
     return Scaffold(
@@ -36,9 +36,9 @@ class _ParkVehicleWidgetState extends State<ParkVehicleWidget> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Consumer<VehicleProvider>(
-            builder: (context, vehicleService, child) {
-          final userId = authService.currentUser?.id;
-          final vehicles = vehicleService.vehiclesForUser(userId ?? '');
+            builder: (context, vehicleProvider, child) {
+          final userId = authProvider.currentUser?.id;
+          final vehicles = vehicleProvider.vehiclesForUser(userId ?? '');
 
           if (vehicles.isEmpty) {
             return Column(
@@ -121,7 +121,7 @@ class _ParkVehicleWidgetState extends State<ParkVehicleWidget> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
-                    final currentUser = authService.currentUser;
+                    final currentUser = authProvider.currentUser;
                     if (_formKey.currentState!.validate()) {
                       if (currentUser == null) {
                         showCustomSnackBar(
@@ -129,10 +129,10 @@ class _ParkVehicleWidgetState extends State<ParkVehicleWidget> {
                             type: 'error');
                       }
                       try {
-                        await parkingService.startParkingSession(
+                        await parkingProvider.startParkingSession(
                             _selectedVehicle!,
                             _selectedParkingSpace!,
-                            authService);
+                            authProvider);
 
                         if (context.mounted) {
                           showCustomSnackBar(

@@ -7,8 +7,8 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(builder: (context, authService, child) {
-      if (authService.currentUser == null) {
+    return Consumer<AuthProvider>(builder: (context, authProvider, child) {
+      if (authProvider.currentUser == null) {
         return Scaffold(
             body: Center(
           child: Text("You need to login!"),
@@ -16,12 +16,20 @@ class UserView extends StatelessWidget {
       }
       return Scaffold(
         appBar: AppBar(
-          title: Text('${authService.currentUser?.name}s page'),
+          title: Text(
+            '${authProvider.currentUser?.name}s page',
+            overflow: TextOverflow.ellipsis,
+            maxLines: 3,
+          ),
+          backgroundColor: Colors.lightBlueAccent.shade400,
+          foregroundColor: Colors.white,
         ),
         body: Center(
             child: Text(
-          'Welcome ${authService.currentUser?.name}!',
+          'Welcome\n${authProvider.currentUser?.name}!',
           style: TextStyle(fontSize: 32),
+          textAlign: TextAlign.center,
+          softWrap: true,
         )),
       );
     });

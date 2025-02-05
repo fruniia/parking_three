@@ -19,10 +19,10 @@ class VehicleViewState extends State<VehicleView> {
   }
 
   Future<void> _loadVehicles() async {
-    final vehicleService = context.watch<VehicleProvider>();
+    final vehicleProvider = context.watch<VehicleProvider>();
 
     try {
-      await vehicleService.loadVehicles();
+      await vehicleProvider.loadVehicles();
     } catch (e) {
       if (mounted) {
         showCustomSnackBar(context, e.toString(), type: 'error');
@@ -32,9 +32,9 @@ class VehicleViewState extends State<VehicleView> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = context.watch<AuthProvider>();
+    final authProvider = context.watch<AuthProvider>();
 
-    if (authService.currentUser == null) {
+    if (authProvider.currentUser == null) {
       return Scaffold(
         body: Center(child: Text('You need to login')),
       );
@@ -42,13 +42,18 @@ class VehicleViewState extends State<VehicleView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${authService.currentUser!.name} vehicles'),
-        backgroundColor: Colors.lightBlue.shade400,
+        title: Text(
+          '${authProvider.currentUser!.name}s vehicles',
+          overflow: TextOverflow.ellipsis,
+          maxLines: 3,
+        ),
+        backgroundColor: Colors.lightBlueAccent.shade400,
+        foregroundColor: Colors.white,
       ),
       body: Consumer<VehicleProvider>(
-        builder: (context, vehicleService, child) {
+        builder: (context, vehicleProvider, child) {
           final vehiclesForCurrentUser =
-              vehicleService.vehiclesForUser(authService.currentUser!.id);
+              vehicleProvider.vehiclesForUser(authProvider.currentUser!.id);
 
           if (vehiclesForCurrentUser.isEmpty) {
             return Center(child: Text('No vehicles registered for this user.'));
@@ -65,7 +70,7 @@ class VehicleViewState extends State<VehicleView> {
                   icon: Icon(Icons.delete),
                   onPressed: () async {
                     try {
-                      await vehicleService.deleteVehicle(vehicle);
+                      await vehicleProvider.deleteVehicle(vehicle);
                       if (context.mounted) {
                         showCustomSnackBar(context, 'Vehicle is removed',
                             type: 'success');

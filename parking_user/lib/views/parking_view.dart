@@ -20,19 +20,22 @@ class _ParkingViewState extends State<ParkingView> {
     _loadData();
   }
 
-  void _loadData() {
+  void _loadData() async {
     try {
-      final parkingService = context.read<ParkingProvider>();
-      final parkingSpaceService = context.read<ParkingSpaceProvider>();
-      final vehicleService = context.read<VehicleProvider>();
-      final authService = context.read<AuthProvider>();
+      final authProvider = context.read<AuthProvider>();
+      if (authProvider.currentUser == null) {
+        showCustomSnackBar(context, 'You need to login', type: 'error');
+      }
 
-      parkingSpaceService.loadParkingSpaces();
-      parkingService.loadActiveParkingSessions(authService);
-      parkingService.loadCompletedParkingSessions(authService);
-      vehicleService.loadVehicles();
+      final parkingProvider = context.read<ParkingProvider>();
+      final parkingSpaceProvider = context.read<ParkingSpaceProvider>();
+      final vehicleProvider = context.read<VehicleProvider>();
+
+      await parkingProvider.loadActiveAndCompletedSessions(authProvider);
+      await parkingSpaceProvider.loadParkingSpaces();
+      vehicleProvider.loadVehicles();
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         showCustomSnackBar(context, 'Failed to load data: $e', type: 'error');
       }
     }
@@ -40,110 +43,124 @@ class _ParkingViewState extends State<ParkingView> {
 
   @override
   Widget build(BuildContext context) {
-    final parkingService = context.watch<ParkingProvider>();
-    final parkingSpaceService = context.watch<ParkingSpaceProvider>();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('My Parkings'),
-      ),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: _sectionTitle('Available parking spaces:'),
+    final authProvider = context.watch<AuthProvider>();
+    if (authProvider.currentUser == null) {
+      return Scaffold(
+        body: Center(child: Text('You need to login')),
+      );
+    }
+
+    final parkingProvider = context.watch<ParkingProvider>();
+    final parkingSpaceProvider = context.watch<ParkingSpaceProvider>();
+    return Builder(builder: (context) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(
+            '${authProvider.currentUser!.name}s Parkings',
+            overflow: TextOverflow.ellipsis,
+            maxLines: 3,
           ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final parkingSpace = parkingSpaceService.parkingSpaces[index];
-                return ListTile(
-                  tileColor: getBackgroundColor(index),
-                  title: Text(parkingSpace.address),
-                  subtitle:
-                      Text('Price per hour: ${parkingSpace.pricePerHour}'),
-                );
-              },
-              childCount: parkingSpaceService.parkingSpaces.length,
+          backgroundColor: Colors.lightBlueAccent.shade400,
+          foregroundColor: Colors.white,
+        ),
+        body: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: _sectionTitle('Available parking spaces:'),
             ),
-          ),
-          const SliverToBoxAdapter(child: Divider()),
-          SliverToBoxAdapter(
-            child: _sectionTitle('Active parking sessions:'),
-          ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final parking = parkingService.activeParkingSessions[index];
-                return ListTile(
-                  title: Text(parking.parkingSpace.address),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(parking.vehicle.licensePlate),
-                      Text('Start: ${formatDateAndTime(parking.start)}'),
-                    ],
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.stop),
-                    onPressed: () async {
-                      try {
-                        await context
-                            .read<ParkingProvider>()
-                            .stopParkingSession(
-                                parking.id, context.read<AuthProvider>());
-                        if (context.mounted) {
-                          showCustomSnackBar(context,
-                              'Parking stopped at ${parking.parkingSpace.address}',
-                              type: 'success');
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final parkingSpace = parkingSpaceProvider.parkingSpaces[index];
+                  return ListTile(
+                    tileColor: getBackgroundColor(index),
+                    title: Text(parkingSpace.address),
+                    subtitle:
+                        Text('Price per hour: ${parkingSpace.pricePerHour}'),
+                  );
+                },
+                childCount: parkingSpaceProvider.parkingSpaces.length,
+              ),
+            ),
+            const SliverToBoxAdapter(child: Divider()),
+            SliverToBoxAdapter(
+              child: _sectionTitle('Active parking sessions:'),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final parking = parkingProvider.activeParkingSessions[index];
+                  return ListTile(
+                    title: Text(parking.parkingSpace.address),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(parking.vehicle.licensePlate),
+                        Text('Start: ${formatDateAndTime(parking.start)}'),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.stop),
+                      onPressed: () async {
+                        try {
+                          await parkingProvider.stopParkingSession(
+                              parking.id, authProvider);
+                          if (context.mounted) {
+                            showCustomSnackBar(context,
+                                'Parking stopped at ${parking.parkingSpace.address}',
+                                type: 'success');
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            showCustomSnackBar(
+                                context, 'Failed to stop parking: $e',
+                                type: 'error');
+                          }
                         }
-                      } catch (e) {
-                        if (context.mounted) {
-                          showCustomSnackBar(
-                              context, 'Failed to stop parking: $e',
-                              type: 'error');
-                        }
-                      }
-                    },
-                  ),
-                );
-              },
-              childCount: parkingService.activeParkingSessions.length,
+                      },
+                    ),
+                  );
+                },
+                childCount: parkingProvider.activeParkingSessions.length,
+              ),
             ),
-          ),
-          const SliverToBoxAdapter(
-            child: Divider(),
-          ),
-          SliverToBoxAdapter(
-            child: _sectionTitle('Completed parking sessions:'),
-          ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final parking = parkingService.completedParkingSessions[index];
-                return ListTile(
-                  tileColor: getBackgroundColor(index),
-                  title: Text(parking.parkingSpace.address),
-                  subtitle: Text(
-                      'Start: ${formatDateAndTime(parking.start)}\nStop: ${formatDateAndTime(parking.stop)}'),
-                );
-              },
-              childCount: parkingService.completedParkingSessions.length,
+            const SliverToBoxAdapter(
+              child: Divider(),
             ),
-          )
-        ],
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: FloatingActionButton.extended(
-          onPressed: navigateToCreateView,
-          backgroundColor: Colors.lightBlue.shade200,
-          icon: Icon(Icons.add),
-          label: Text(
-            'Add parking',
-            style: TextStyle(fontSize: 16),
+            SliverToBoxAdapter(
+              child: _sectionTitle('Completed parking sessions:'),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final parking =
+                      parkingProvider.completedParkingSessions[index];
+                  return ListTile(
+                    tileColor: getBackgroundColor(index),
+                    title: Text(parking.parkingSpace.address),
+                    subtitle: Text(
+                        'Start: ${formatDateAndTime(parking.start)}\nStop: ${formatDateAndTime(parking.stop)}'),
+                  );
+                },
+                childCount: parkingProvider.completedParkingSessions.length,
+              ),
+            )
+          ],
+        ),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: FloatingActionButton.extended(
+            onPressed: navigateToCreateView,
+            backgroundColor: Colors.lightBlue.shade200,
+            icon: Icon(Icons.add),
+            label: Text(
+              'Add parking',
+              style: TextStyle(fontSize: 16),
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Padding _sectionTitle(String title) {
@@ -154,8 +171,8 @@ class _ParkingViewState extends State<ParkingView> {
   }
 
   void navigateToCreateView() async {
-    final parkingService = context.read<ParkingProvider>();
-    final authService = context.read<AuthProvider>();
+    final parkingProvider = context.read<ParkingProvider>();
+    final authProvider = context.read<AuthProvider>();
 
     try {
       final result = await Navigator.push(
@@ -164,7 +181,7 @@ class _ParkingViewState extends State<ParkingView> {
       );
       if (result == true) {
         if (mounted) {
-          parkingService.loadActiveParkingSessions(authService);
+          parkingProvider.loadActiveParkingSessions(authProvider);
         }
       }
     } catch (e) {
@@ -175,4 +192,5 @@ class _ParkingViewState extends State<ParkingView> {
       }
     }
   }
+
 }

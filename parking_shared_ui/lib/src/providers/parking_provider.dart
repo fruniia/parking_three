@@ -8,7 +8,6 @@ class ParkingProvider extends ChangeNotifier {
   List<Parking> _completedParkingSessions = [];
   List<Parking> _activeParkingSessions = [];
 
-
   bool _activeSessionsLoaded = false;
   bool _completedSessionsLoaded = false;
 
@@ -17,23 +16,22 @@ class ParkingProvider extends ChangeNotifier {
   List<Parking> get activeParkingSessions => _activeParkingSessions;
   List<Parking> get completedParkingSessions => _completedParkingSessions;
 
-
-  ParkingProvider(
-      {required this.parkingRepository,
-      this.isAdmin = false});
+  ParkingProvider({required this.parkingRepository, this.isAdmin = false});
 
   Future<List<Parking>> loadActiveParkingSessions(
-      AuthProvider? authService) async {
-    if (authService?.currentUser == null && !isAdmin && authService != null) {
+      AuthProvider? authProvider) async {
+    if (authProvider?.currentUser == null && !isAdmin) {
       throw Exception('User is not authenticated');
     }
+
     if (_activeSessionsLoaded) return _activeParkingSessions;
 
+    _activeParkingSessions.clear();
+    _activeSessionsLoaded = false;
+
     try {
-      notifyListeners();
       final allParkings = await ParkingRepository().getAll();
 
-      _activeParkingSessions.clear();
       if (isAdmin) {
         // get all active parking sessions
         _activeParkingSessions =
@@ -44,7 +42,7 @@ class ParkingProvider extends ChangeNotifier {
           allParkings
               .where((parking) =>
                   parking.stop == null &&
-                  parking.vehicle.owner.id == authService?.currentUser?.id)
+                  parking.vehicle.owner.id == authProvider?.currentUser?.id)
               .toList(),
         );
       }
@@ -60,17 +58,18 @@ class ParkingProvider extends ChangeNotifier {
   }
 
   Future<List<Parking>> loadCompletedParkingSessions(
-      AuthProvider? authService) async {
-    if (authService?.currentUser == null && !isAdmin && authService != null) {
+      AuthProvider? authProvider) async {
+    if (authProvider?.currentUser == null && !isAdmin) {
       throw Exception('User is not authenticated');
     }
 
     if (_completedSessionsLoaded) return _completedParkingSessions;
 
+    _completedParkingSessions.clear();
+    _completedSessionsLoaded = false;
+
     try {
       final allParkings = await ParkingRepository().getAll();
-
-      _completedParkingSessions.clear();
 
       if (isAdmin) {
         _completedParkingSessions.addAll(
@@ -80,12 +79,11 @@ class ParkingProvider extends ChangeNotifier {
           allParkings
               .where((parking) =>
                   parking.stop != null &&
-                  parking.vehicle.owner.id == authService?.currentUser!.id)
+                  parking.vehicle.owner.id == authProvider?.currentUser!.id)
               .toList(),
         );
       }
       _completedSessionsLoaded = true;
-
       notifyListeners();
     } catch (e) {
       _completedParkingSessions = [];
@@ -94,13 +92,24 @@ class ParkingProvider extends ChangeNotifier {
     return _completedParkingSessions;
   }
 
+  Future<void> loadActiveAndCompletedSessions(AuthProvider authProvider) async {
+    if (authProvider.currentUser != null) {
+      if (!_activeSessionsLoaded) {
+        await loadActiveParkingSessions(authProvider);
+      }
+      if (!_completedSessionsLoaded) {
+        await loadCompletedParkingSessions(authProvider);
+      }
+    }
+  }
+
   Future<void> startParkingSession(Vehicle vehicle, ParkingSpace parkingSpace,
-      AuthProvider authService) async {
-    if (authService.currentUser == null) {
+      AuthProvider authProvider) async {
+    if (authProvider.currentUser == null) {
       throw Exception('User is not authenticated');
     }
 
-    if (vehicle.owner.id != authService.currentUser?.id) {
+    if (vehicle.owner.id != authProvider.currentUser?.id) {
       throw Exception('You are not authorized to park this vehicle');
     }
 
@@ -116,8 +125,8 @@ class ParkingProvider extends ChangeNotifier {
   }
 
   Future<void> stopParkingSession(
-      String parkingId, AuthProvider authService) async {
-    if (authService.currentUser == null) {
+      String parkingId, AuthProvider authProvider) async {
+    if (authProvider.currentUser == null) {
       throw Exception('User is not authenticated');
     }
 
@@ -127,7 +136,7 @@ class ParkingProvider extends ChangeNotifier {
         orElse: () => throw Exception('Parking session not found'),
       );
 
-      if (parking.vehicle.owner.id != authService.currentUser!.id) {
+      if (parking.vehicle.owner.id != authProvider.currentUser!.id) {
         throw Exception('You are not authorized to stop this parking');
       }
 
@@ -154,5 +163,23 @@ class ParkingProvider extends ChangeNotifier {
 
     return ParkingStatisticsService.getMostPopularParkingSpaces(
         allParkingSessions);
+  }
+
+  void clearActiveParkingSessions() {
+    _activeParkingSessions.clear();
+    notifyListeners();
+  }
+
+  void clearCompletedParkingSessions() {
+    _completedParkingSessions.clear();
+    notifyListeners();
+  }
+
+  void clearData() {
+    activeParkingSessions.clear();
+    completedParkingSessions.clear();
+    _activeSessionsLoaded = false;
+    _completedSessionsLoaded = false;
+    notifyListeners();
   }
 }

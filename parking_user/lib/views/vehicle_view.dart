@@ -36,10 +36,6 @@ class VehicleViewState extends State<VehicleView> {
 
     if (authService.currentUser == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text('My Vehicles'),
-          backgroundColor: Colors.lightBlue.shade400,
-        ),
         body: Center(child: Text('You need to login')),
       );
     }

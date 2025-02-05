@@ -29,7 +29,7 @@ class StartPageView extends StatelessWidget {
                     context.findAncestorStateOfType<NavigationViewState>();
                 navViewState?.setSelectedIndex(2);
               },
-              child: const Text('Go parking statistics'),
+              child: const Text('Go to parking statistics page'),
             )
           ],
         ),

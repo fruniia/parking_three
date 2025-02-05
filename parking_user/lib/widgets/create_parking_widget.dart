@@ -43,7 +43,7 @@ class _ParkVehicleWidgetState extends State<ParkVehicleWidget> {
           if (vehicles.isEmpty) {
             return Column(
               children: [
-                Center(child: Text('You have not registered a vehcicle.')),
+                Center(child: Text('You have not registered a vehicle.')),
                 SizedBox(height: 8),
                 TextButton(
                   onPressed: () {

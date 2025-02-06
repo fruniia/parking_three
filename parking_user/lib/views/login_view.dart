@@ -30,9 +30,15 @@ class LoginView extends StatelessWidget {
                 decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.abc_rounded),
                     labelText: 'Socialsecuritynumber'),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter socialsecuritynumber'
-                    : null,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter socialsecuritynumber';
+                  }
+                  if (!isValidLuhn(value)) {
+                    return 'Invalid ssn';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(
                 height: 16,
@@ -48,7 +54,6 @@ class LoginView extends StatelessWidget {
                     : ElevatedButton(
                         onPressed: () async {
                           if (_key.currentState!.validate()) {
-                            
                             try {
                               await authProvider.login(_ssnController.text);
                               if (authProvider.status ==

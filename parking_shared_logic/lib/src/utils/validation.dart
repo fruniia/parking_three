@@ -11,7 +11,7 @@ String? licensePlateValidator(String? value) {
     return '''
 Invalid format!\n
 License plate must consist of 3 letters\n
-followed by 2 digits and finally a letter or digit.\n
+followed by 2 digits and finally a letter or a digit.\n
 Example: ABC12D''';
   }
   return null;

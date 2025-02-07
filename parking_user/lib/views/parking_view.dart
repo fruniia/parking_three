@@ -21,18 +21,17 @@ class _ParkingViewState extends State<ParkingView> {
   }
 
   void _loadData() async {
+    final authProvider = context.read<AuthProvider>();
+    final parkingSpaceProvider = context.read<ParkingSpaceProvider>();
+    final parkingProvider = context.read<ParkingProvider>();
+    final vehicleProvider = context.read<VehicleProvider>();
+    if (authProvider.currentUser == null) {
+      showCustomSnackBar(context, 'You need to login', type: 'error');
+    }
+
     try {
-      final authProvider = context.read<AuthProvider>();
-      if (authProvider.currentUser == null) {
-        showCustomSnackBar(context, 'You need to login', type: 'error');
-      }
-
-      final parkingProvider = context.read<ParkingProvider>();
-      final parkingSpaceProvider = context.read<ParkingSpaceProvider>();
-      final vehicleProvider = context.read<VehicleProvider>();
-
-      await parkingProvider.loadActiveAndCompletedSessions(authProvider);
       await parkingSpaceProvider.loadParkingSpaces();
+      await parkingProvider.loadActiveAndCompletedSessions(authProvider);
       vehicleProvider.loadVehicles();
     } catch (e) {
       if (mounted) {
@@ -44,14 +43,22 @@ class _ParkingViewState extends State<ParkingView> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
+    final parkingSpaceProvider = context.watch<ParkingSpaceProvider>();
+    final parkingProvider = context.watch<ParkingProvider>();
+    
     if (authProvider.currentUser == null) {
       return Scaffold(
         body: Center(child: Text('You need to login')),
       );
     }
+    if (parkingProvider.isLoading) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
-    final parkingProvider = context.watch<ParkingProvider>();
-    final parkingSpaceProvider = context.watch<ParkingSpaceProvider>();
     return Builder(builder: (context) {
       return Scaffold(
         appBar: AppBar(
@@ -71,7 +78,8 @@ class _ParkingViewState extends State<ParkingView> {
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  final parkingSpace = parkingSpaceProvider.parkingSpaces[index];
+                  final parkingSpace =
+                      parkingSpaceProvider.parkingSpaces[index];
                   return ListTile(
                     tileColor: getBackgroundColor(index),
                     title: Text(parkingSpace.address),
@@ -192,5 +200,4 @@ class _ParkingViewState extends State<ParkingView> {
       }
     }
   }
-
 }

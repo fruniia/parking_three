@@ -13,6 +13,7 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
     return Center(
       child: Form(
         key: _key,
@@ -37,6 +38,7 @@ class LoginView extends StatelessWidget {
                   if (!isValidLuhn(value)) {
                     return 'Invalid ssn';
                   }
+
                   return null;
                 },
               ),
@@ -48,46 +50,39 @@ class LoginView extends StatelessWidget {
                 height: 16,
               ),
               Builder(builder: (context) {
-                final authProvider = context.read<AuthProvider>();
-                return authProvider.status == UserAuthStatus.inProgress
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        onPressed: () async {
-                          if (_key.currentState!.validate()) {
-                            try {
-                              await authProvider.login(_ssnController.text);
-                              if (authProvider.status ==
-                                      UserAuthStatus.authenticated &&
-                                  context.mounted) {
-                                showCustomSnackBar(context,
-                                    '${authProvider.currentUser?.name ?? 'User'} - Logged in successfully',
-                                    type: 'success');
+                return ElevatedButton(
+                    onPressed: () async {
+                      if (_key.currentState!.validate()) {
+                        try {
+                          await authProvider.login(_ssnController.text);
 
-                                if (context.mounted) {
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const NavigationView()));
-                                }
-                              } else if (authProvider.status ==
-                                  UserAuthStatus.notAuthenticated) {
-                                if (context.mounted) {
-                                  showCustomSnackBar(context,
-                                      'Authentication failed. Please try again.',
-                                      type: 'error');
-                                }
-                              }
-                            } catch (e) {
-                              if (context.mounted) {
-                                showCustomSnackBar(
-                                    context, 'Error: ${e.toString()}',
-                                    type: 'error');
-                              }
+                          if (authProvider.status ==
+                              UserAuthStatus.authenticated) {
+                            if (context.mounted) {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const NavigationView()));
+                            }
+                          } else if (authProvider.status ==
+                              UserAuthStatus.notAuthenticated) {
+                            if (context.mounted) {
+                              showCustomSnackBar(context,
+                                  'Authentication failed. Invalid SSN.',
+                                  type: 'error');
                             }
                           }
-                        },
-                        child: const Text('Login'));
+                        } catch (e) {
+                          if (context.mounted) {
+                            showCustomSnackBar(
+                                context, 'Error: ${e.toString()}',
+                                type: 'error');
+                          }
+                        }
+                      }
+                    },
+                    child: const Text('Login'));
               }),
               const SizedBox(height: 8),
               TextButton(

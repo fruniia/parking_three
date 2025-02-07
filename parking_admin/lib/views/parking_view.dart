@@ -40,7 +40,8 @@ class _ParkingViewState extends State<ParkingView> {
   Widget build(BuildContext context) {
     return Consumer<ParkingProvider>(
         builder: (context, parkingProvider, child) {
-      if (parkingProvider.activeParkingSessions.isEmpty) {
+      if (parkingProvider.activeParkingSessions.isEmpty &&
+          parkingProvider.completedParkingSessions.isEmpty) {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -94,12 +95,12 @@ class _ParkingViewState extends State<ParkingView> {
               const SizedBox(height: 20),
               const Text('Active parking sessions',
                   style: TextStyle(fontSize: 22)),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               Expanded(
                   child: ActiveParkingGrid(
                       parkingProvider: parkingProvider,
                       costService: costService)),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               const Text(
                 'Statistics',
                 style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),

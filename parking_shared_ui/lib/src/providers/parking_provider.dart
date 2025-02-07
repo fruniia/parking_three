@@ -4,19 +4,37 @@ import 'package:parking_shared_ui/parking_shared_ui.dart';
 
 class ParkingProvider extends ChangeNotifier {
   final ParkingRepository parkingRepository;
+  List<Parking> _parkings = [];
 
   List<Parking> _completedParkingSessions = [];
   List<Parking> _activeParkingSessions = [];
 
+  bool _isLoading = false;
   bool _activeSessionsLoaded = false;
   bool _completedSessionsLoaded = false;
 
   bool isAdmin = false;
 
+  List<Parking> get parkings => _parkings;
   List<Parking> get activeParkingSessions => _activeParkingSessions;
   List<Parking> get completedParkingSessions => _completedParkingSessions;
+  bool get isLoading => _isLoading;
 
   ParkingProvider({required this.parkingRepository, this.isAdmin = false});
+
+  Future<List<Parking>> loadParkings() async {
+    if (_parkings.isNotEmpty) return _parkings;
+
+    try {
+      _parkings.clear();
+      final parkings = await ParkingRepository().getAll();
+      _parkings.addAll(parkings);
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Failed to load vehicles.');
+    }
+    return _parkings;
+  }
 
   Future<List<Parking>> loadActiveParkingSessions(
       AuthProvider? authProvider) async {
@@ -30,7 +48,7 @@ class ParkingProvider extends ChangeNotifier {
     _activeSessionsLoaded = false;
 
     try {
-      final allParkings = await ParkingRepository().getAll();
+      final allParkings = await loadParkings();
 
       if (isAdmin) {
         // get all active parking sessions
@@ -69,7 +87,7 @@ class ParkingProvider extends ChangeNotifier {
     _completedSessionsLoaded = false;
 
     try {
-      final allParkings = await ParkingRepository().getAll();
+      final allParkings = await loadParkings();
 
       if (isAdmin) {
         _completedParkingSessions.addAll(
@@ -93,13 +111,22 @@ class ParkingProvider extends ChangeNotifier {
   }
 
   Future<void> loadActiveAndCompletedSessions(AuthProvider authProvider) async {
-    if (authProvider.currentUser != null) {
-      if (!_activeSessionsLoaded) {
-        await loadActiveParkingSessions(authProvider);
+    try {
+      _isLoading = true;
+      if (authProvider.currentUser != null) {
+        if (!_activeSessionsLoaded) {
+          await loadActiveParkingSessions(authProvider);
+        }
+        if (!_completedSessionsLoaded) {
+          await loadCompletedParkingSessions(authProvider);
+        }
       }
-      if (!_completedSessionsLoaded) {
-        await loadCompletedParkingSessions(authProvider);
-      }
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
     }
   }
 

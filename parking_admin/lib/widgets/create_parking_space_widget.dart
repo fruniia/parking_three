@@ -26,7 +26,7 @@ class _CreateParkingSpaceWidgetState extends State<CreateParkingSpaceWidget> {
         padding: const EdgeInsets.all(8.0),
         child: Form(
           key: _formkey,
-          child: ListView(padding: const EdgeInsets.all(16.0), children: [
+          child: ListView(padding: const EdgeInsets.symmetric(vertical: 10.0), children: [
             TextFormField(
               controller: addressController,
               decoration: const InputDecoration(
@@ -51,7 +51,10 @@ class _CreateParkingSpaceWidgetState extends State<CreateParkingSpaceWidget> {
             const SizedBox(
               height: 20,
             ),
-            ElevatedButton(onPressed: _saveData, child: const Text('Save'))
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: ElevatedButton(onPressed: _saveData, child: const Text('Save')),
+            )
           ]),
         ),
       ),
@@ -81,7 +84,7 @@ class _CreateParkingSpaceWidgetState extends State<CreateParkingSpaceWidget> {
         }
       }
     } else {
-      showCustomSnackBar(context, 'Please fix the errors in the form',
+      showCustomSnackBar(context, 'Please correct the highligthed fields',
           type: 'error');
     }
   }

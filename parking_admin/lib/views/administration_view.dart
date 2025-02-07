@@ -12,19 +12,31 @@ class AdministrationView extends StatefulWidget {
 }
 
 class AdministrationViewState extends State<AdministrationView> {
+  bool _isLoading = false;
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadParkingSpaces();
   }
 
-  void _loadData() async {
+  Future<void> _loadParkingSpaces() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       final parkingSpaceProvider = context.read<ParkingSpaceProvider>();
       await parkingSpaceProvider.loadParkingSpaces();
     } catch (e) {
       if (mounted) {
-        showCustomSnackBar(context, 'Failed to load data: $e', type: 'error');
+        showCustomSnackBar(context, 'Failed to load parking spaces: $e',
+            type: 'error');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -47,48 +59,59 @@ class AdministrationViewState extends State<AdministrationView> {
               ),
             ),
             const SizedBox(
-              height: 20,
+              height: 10,
             ),
             Expanded(
-              child: Consumer<ParkingSpaceProvider>(
-                  builder: (context, parkingSpaceProvider, child) {
-                if (parkingSpaceProvider.parkingSpaces.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'No parking spaces available.',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : Expanded(
+                      child: Consumer<ParkingSpaceProvider>(
+                          builder: (context, parkingSpaceProvider, child) {
+                        if (parkingSpaceProvider.parkingSpaces.isEmpty) {
+                          return const Center(
+                            child: Text(
+                              'No parking spaces available.',
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.grey),
+                            ),
+                          );
+                        } else {
+                          return ListView.builder(
+                            itemCount:
+                                parkingSpaceProvider.parkingSpaces.length,
+                            itemBuilder: (context, index) {
+                              return ParkingSpaceWidget(
+                                  parkingSpace:
+                                      parkingSpaceProvider.parkingSpaces[index],
+                                  index: index,
+                                  onDelete: (ParkingSpace parkingSpace) {
+                                    parkingSpaceProvider.deleteParkingSpace(
+                                        parkingSpaceProvider
+                                            .parkingSpaces[index]);
+                                  });
+                            },
+                          );
+                        }
+                      }),
                     ),
-                  );
-                } else {
-                  return ListView.builder(
-                    itemCount: parkingSpaceProvider.parkingSpaces.length,
-                    itemBuilder: (context, index) {
-                      return ParkingSpaceWidget(
-                          parkingSpace:
-                              parkingSpaceProvider.parkingSpaces[index],
-                          index: index,
-                          onDelete: (ParkingSpace parkingSpace) {
-                            parkingSpaceProvider.deleteParkingSpace(
-                                parkingSpaceProvider.parkingSpaces[index]);
-                          });
-                    },
-                  );
-                }
-              }),
             ),
-            FloatingActionButton.extended(
-              onPressed: () {
-                navigateToCreateView(context);
-              },
-              label: const Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text('Add new parking space'),
-                  Icon(Icons.add),
-                ],
-              ),
-            )
           ],
+        ),
+      ),
+      floatingActionButton: Center(
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            navigateToCreateView(context);
+          },
+          label: const Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Text('Add new parking space'),
+              Icon(Icons.add),
+            ],
+          ),
         ),
       ),
     );
@@ -101,16 +124,7 @@ class AdministrationViewState extends State<AdministrationView> {
     );
     if (result == true) {
       if (context.mounted) {
-        final parkingSpaceProvider =
-            Provider.of<ParkingSpaceProvider>(context, listen: false);
-        try {
-          await parkingSpaceProvider.loadParkingSpaces();
-        } catch (e) {
-          if (context.mounted) {
-            showCustomSnackBar(context, 'Failed to load parking spaces: $e',
-                type: 'error');
-          }
-        }
+        _loadParkingSpaces();
       }
     }
   }

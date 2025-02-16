@@ -29,6 +29,7 @@ class ParkingAdmin extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Parking app',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
           useMaterial3: true,

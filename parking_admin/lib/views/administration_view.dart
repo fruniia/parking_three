@@ -66,36 +66,32 @@ class AdministrationViewState extends State<AdministrationView> {
                   ? const Center(
                       child: CircularProgressIndicator(),
                     )
-                  : Expanded(
-                      child: Consumer<ParkingSpaceProvider>(
-                          builder: (context, parkingSpaceProvider, child) {
-                        if (parkingSpaceProvider.parkingSpaces.isEmpty) {
-                          return const Center(
-                            child: Text(
-                              'No parking spaces available.',
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.grey),
-                            ),
-                          );
-                        } else {
-                          return ListView.builder(
-                            itemCount:
-                                parkingSpaceProvider.parkingSpaces.length,
-                            itemBuilder: (context, index) {
-                              return ParkingSpaceWidget(
-                                  parkingSpace:
-                                      parkingSpaceProvider.parkingSpaces[index],
-                                  index: index,
-                                  onDelete: (ParkingSpace parkingSpace) {
-                                    parkingSpaceProvider.deleteParkingSpace(
-                                        parkingSpaceProvider
-                                            .parkingSpaces[index]);
-                                  });
-                            },
-                          );
-                        }
-                      }),
-                    ),
+                  : Consumer<ParkingSpaceProvider>(
+                      builder: (context, parkingSpaceProvider, child) {
+                      if (parkingSpaceProvider.parkingSpaces.isEmpty) {
+                        return const Center(
+                          child: Text(
+                            'No parking spaces available.',
+                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                          ),
+                        );
+                      } else {
+                        return ListView.builder(
+                          itemCount: parkingSpaceProvider.parkingSpaces.length,
+                          itemBuilder: (context, index) {
+                            return ParkingSpaceWidget(
+                                parkingSpace:
+                                    parkingSpaceProvider.parkingSpaces[index],
+                                index: index,
+                                onDelete: (ParkingSpace parkingSpace) {
+                                  parkingSpaceProvider.deleteParkingSpace(
+                                      parkingSpaceProvider
+                                          .parkingSpaces[index]);
+                                });
+                          },
+                        );
+                      }
+                    }),
             ),
           ],
         ),

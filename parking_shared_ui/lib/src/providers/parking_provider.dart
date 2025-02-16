@@ -3,8 +3,8 @@ import 'package:parking_shared_logic/parking_shared_logic.dart';
 import 'package:parking_shared_ui/parking_shared_ui.dart';
 
 class ParkingProvider extends ChangeNotifier {
+  final List<Parking> _parkings = [];
   final ParkingRepository parkingRepository;
-  List<Parking> _parkings = [];
 
   List<Parking> _completedParkingSessions = [];
   List<Parking> _activeParkingSessions = [];

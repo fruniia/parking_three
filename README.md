@@ -73,44 +73,45 @@ Follow the instructions below to install and run the application:
 ## Start the server
 1. **Install dependencies**
 
-   Navigate to the `parking_server` directory and install dependencies:
+   Navigate to the `parking_server` and `parking_shared_logic` directories, and install dependencies:
+
    ```bash
-   cd parking_server
    dart pub get
    ```
+
+   Navigate to the `parking_shared_ui`, `parking_admin` and `parking_user` directories, and install dependencies:
+
+   ```bash
+   flutter pub get
+   ```
+
 2. **Run the server:**
 
-   Start the server by running the following:
+   Start the server by running the following in the `parking_server` directory:
+
    ```
    dart run parking_server:server
    ```
    The server will now be running and ready to handle requests.
 
 ### Start the desktop application Parking Admin
-1. **Install dependencies**
+1. **Run the desktop app**
+   Navigate to the `parking_admin` directory and run the app on Windows:
 
-   Navigate to the `parking_admin` directory and install dependencies:
-   ```bash
-   cd parking_admin
-   flutter pub get
-   ```
-2. **Run the desktop app**
-
-   Run the app on Windows:
    ```bash
    flutter run -d windows # On Windows
    ```
 
 ### Start the mobile application Parking User
-1. **Install dependencies**
+1. **Run the android app**
 
-   Navigate to the `parking_user` directory and install dependencies:
-   ```bash
-   cd parking_user
-   flutter pub get
-   ```
-2. **Run the mobile app**
-   Run the app with Android
+   If you don't have a physical Android device, you can use an Android Emulator to run the app. Follow these steps to set up an emulator:
+
+   Open Android Studio and go to "AVD Manager".
+   Create a new virtual device (emulator) with your desired Android version.
+   Start the emulator.
+   After that, navigate to the `parking_user` directory and run the app with Android:
+
    ```bash
    flutter run
    ```
